@@ -42,7 +42,7 @@ contract Challenge {
     }
 
     function addToSchedule(uint256 _challengeId, uint256[10] memory _scheduleItems) public {
-        require(msg.sender == owner[_challengeId], "Only owner of challenge can call this");
+        require(msg.sender == owner[_challengeId], "Only owner of challenge can add item to schedule");
 
         uint256 nextScheduleItemId = 0;
         for(uint256 i = 0; i < 10; i++) {
@@ -51,6 +51,15 @@ contract Challenge {
         }
     }
 
-    function startChallenge() public {
+    function startChallenge(uint256 _challengeId) public {
+        require(lastChallengeId >= _challengeId, "Challenge ID doesn't exist");
+        require(msg.sender == owner[_challengeId], "Only owner of challenge can start challenge");
+
+        if (now > start[_challengeId]) {
+            start[_challengeId] = now;
+        }
+
+        idOfCurrentScheduleItem[_challengeId]++;
+        startTimeOfCurrentScheduleItem[_challengeId] = start[_challengeId];
     }
 }
