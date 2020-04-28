@@ -15,7 +15,7 @@ contract Challenge {
     mapping(uint256 => mapping(uint256 => uint256)) fine; // [challengeId][indexOfAchiever] = sum of fine in wei
 
     mapping(uint256 => uint256) start; // [challengeId] = date of start of challenge
-    mapping(uint256 => mapping(uint256 => uint256)) schedule; // [challengeId][indexOfItem] = duration of every item of schedule
+    mapping(uint256 => mapping(uint256 => uint256)) schedule; // [challengeId][indexOfItem] = duration of every item of schedule in seconds
     mapping(uint256 => uint256) lastScheduleItemId; // [challengeId] = index of last schedule item
     mapping(uint256 => uint256) idOfCurrentScheduleItem; // [challengeId] = index of current schedule item (stage of doing challenge)
     mapping(uint256 => uint256) startTimeOfCurrentScheduleItem; // [challengeId] = date of start of current item of schedule (stage of doing challenge)
@@ -61,5 +61,19 @@ contract Challenge {
 
         idOfCurrentScheduleItem[_challengeId]++;
         startTimeOfCurrentScheduleItem[_challengeId] = start[_challengeId];
+    }
+
+    function setDoneForPeriod(uint256 _challengeId) public {
+        require(lastChallengeId >= _challengeId, "Challenge ID doesn't exist");
+        require(msg.sender == achievers[_challengeId][1], "Only achiever of challenge can set done for period");
+
+        uint256 endTimeOfCurrentScheduleItem = startTimeOfCurrentScheduleItem[_challengeId] + schedule[idOfCurrentScheduleItem[_challengeId]];
+        require(endTimeOfCurrentScheduleItem >= now, "Current schedule item has already completed. At first you need to use function calcCurrentScheduleItem()");
+
+        scheduleDone[_challengeId][_idOfScheduleItem] = true;
+
+        // Start new schedule item
+        idOfCurrentScheduleItem[_challengeId]++;
+        startTimeOfCurrentScheduleItem[_challengeId] = endTimeOfCurrentScheduleItem + 1;
     }
 }
