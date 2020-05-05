@@ -20,7 +20,9 @@ contract Challenge {
     mapping(uint256 => uint256) idOfCurrentScheduleItem; // [challengeId] = index of current schedule item (stage of doing challenge)
     mapping(uint256 => uint256) startTimeOfCurrentScheduleItem; // [challengeId] = date of start of current item of schedule (stage of doing challenge)
     mapping(uint256 => mapping(uint256 => bool)) scheduleDone; // [challengeId][indexOfItem] = result of item of schedule (done or not) (stage of doing challenge)
-    mapping(uint256 => mapping(uint256 => bool)) scheduleFineTaken; // [challengeId][indexOfItem] = Is fine of item of schedule taken or not? (stage of doing challenge)
+
+    mapping(uint256 => mapping(uint256 => uint256)) scheduleFineAvailable; // [challengeId][index] = index of period of schedule for what fine taking is available
+    mapping(uint256 => uint256) lastIdOfScheduleFineAvailable; // [challengeId] = last index of mapping scheduleFineAvailable
 
     function addChallenge(uint256 _start, address _observer, uint256 _guarantee, uint256 _fine) public {
         require(_guarantee >= _fine, "Sum of guarantee should be either equal or greater than sum of fine");
@@ -67,13 +69,39 @@ contract Challenge {
         require(lastChallengeId >= _challengeId, "Challenge ID doesn't exist");
         require(msg.sender == achievers[_challengeId][1], "Only achiever of challenge can set done for period");
 
-        uint256 endTimeOfCurrentScheduleItem = startTimeOfCurrentScheduleItem[_challengeId] + schedule[idOfCurrentScheduleItem[_challengeId]];
+        uint256 endTimeOfCurrentScheduleItem = startTimeOfCurrentScheduleItem[_challengeId] + schedule[_challengeId][idOfCurrentScheduleItem[_challengeId]];
         require(endTimeOfCurrentScheduleItem >= now, "Current schedule item has already completed. At first you need to use function calcCurrentScheduleItem()");
 
-        scheduleDone[_challengeId][_idOfScheduleItem] = true;
+        scheduleDone[_challengeId][idOfCurrentScheduleItem[_challengeId]] = true;
 
         // Start new schedule item
         idOfCurrentScheduleItem[_challengeId]++;
         startTimeOfCurrentScheduleItem[_challengeId] = endTimeOfCurrentScheduleItem + 1;
+    }
+
+    function calcCurrentScheduleItem(uint256 _challengeId) public returns(bool) {
+        require(startTimeOfCurrentScheduleItem[_challengeId] + schedule[_challengeId][idOfCurrentScheduleItem[_challengeId]] > now, "Current schedule item is actual.");
+
+        uint256 sizeOfChunk = 10; // limit amount of periods to avoid exceeding limit of gas
+        bool isActual = false;
+        for (uint256 i = idOfCurrentScheduleItem[_challengeId]; i <= idOfCurrentScheduleItem[_challengeId] + sizeOfChunk; i++) {
+            if (startTimeOfCurrentScheduleItem[_challengeId] + schedule[_challengeId][i] <= now) {
+                if (scheduleDone[_challengeId][i] == false) {
+                    // Add element to scheduleFineAvailable. Observer can get fine for this period.
+                    lastIdOfScheduleFineAvailable[_challengeId]++;
+                    scheduleFineAvailable[_challengeId][lastIdOfScheduleFineAvailable[_challengeId]] = i;
+                }
+
+                // Go to the next period
+                startTimeOfCurrentScheduleItem[_challengeId] += schedule[_challengeId][i];
+                idOfCurrentScheduleItem[_challengeId]++;
+            } else {
+                // Current period is actual
+                isActual = true;
+                break;
+            }
+        }
+
+        return isActual;
     }
 }
