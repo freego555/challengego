@@ -79,7 +79,7 @@ contract Challenge {
         startTimeOfCurrentScheduleItem[_challengeId] = endTimeOfCurrentScheduleItem + 1;
     }
 
-    function calcCurrentScheduleItem(uint256 _challengeId) public returns(bool) {
+    function calcCurrentPeriod(uint256 _challengeId) public returns(bool) {
         require(startTimeOfCurrentScheduleItem[_challengeId] + schedule[_challengeId][idOfCurrentScheduleItem[_challengeId]] > now, "Current schedule item is actual.");
 
         uint256 sizeOfChunk = 10; // limit amount of periods to avoid exceeding limit of gas
