@@ -45,6 +45,7 @@ contract Challenge {
 
     function addToSchedule(uint256 _challengeId, uint256[10] memory _schedulePeriods) public {
         require(msg.sender == owner[_challengeId], "Only owner of challenge can add period to schedule");
+        require(idOfCurrentPeriod[_challengeId] <= lastSchedulePeriodId[_challengeId], "Challenge has already finished.");
 
         uint256 nextScheduleItemId = 0;
         for(uint256 i = 0; i < 10; i++) {
@@ -56,6 +57,7 @@ contract Challenge {
     function startChallenge(uint256 _challengeId) public {
         require(lastChallengeId >= _challengeId, "Challenge ID doesn't exist");
         require(msg.sender == owner[_challengeId], "Only owner of challenge can start challenge");
+        require(idOfCurrentPeriod[_challengeId] == 0, "Challenge has already started.");
 
         if (now > start[_challengeId]) {
             start[_challengeId] = now;
@@ -68,6 +70,7 @@ contract Challenge {
     function setDoneForPeriod(uint256 _challengeId) public {
         require(lastChallengeId >= _challengeId, "Challenge ID doesn't exist");
         require(msg.sender == achievers[_challengeId][1], "Only achiever of challenge can set done for period");
+        require(idOfCurrentPeriod[_challengeId] <= lastSchedulePeriodId[_challengeId], "Challenge has already finished.");
 
         uint256 endTimeOfCurrentScheduleItem = startTimeOfCurrentPeriod[_challengeId] + schedule[_challengeId][idOfCurrentPeriod[_challengeId]];
         require(endTimeOfCurrentScheduleItem >= now, "Current schedule period has already completed. At first you need to use function calcCurrentScheduleItem()");
@@ -81,6 +84,7 @@ contract Challenge {
 
     function calcCurrentPeriod(uint256 _challengeId) public returns(bool) {
         require(startTimeOfCurrentPeriod[_challengeId] + schedule[_challengeId][idOfCurrentPeriod[_challengeId]] > now, "Current schedule period is actual.");
+        require(idOfCurrentPeriod[_challengeId] <= lastSchedulePeriodId[_challengeId], "Challenge has already finished.");
 
         uint256 sizeOfChunk = 10; // limit amount of periods to avoid exceeding limit of gas
         bool isActual = false;
