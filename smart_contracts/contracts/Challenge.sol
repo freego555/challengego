@@ -55,7 +55,7 @@ contract Challenge {
     }
 
     function startChallenge(uint256 _challengeId) public {
-        require(lastChallengeId >= _challengeId, "Challenge ID doesn't exist");
+        require(lastChallengeId >= _challengeId && _challengeId > 0, "Challenge ID doesn't exist");
         require(msg.sender == owner[_challengeId], "Only owner of challenge can start challenge");
         require(idOfCurrentPeriod[_challengeId] == 0, "Challenge has already started.");
 
