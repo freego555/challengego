@@ -11,3 +11,5 @@ dist/
 package-lock.json
 smart_contracts/conract_addresses_local\.js
 smart_contracts/test
+
+temp/

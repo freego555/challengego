@@ -11,8 +11,8 @@ contract Challenge {
     mapping(uint256 => uint256) lastObserverId; // [challengeId] = last id of observer in current challenge
     mapping(uint256 => mapping(uint256 => address)) observers; // [challengeId][indexOfObserver] = address of observer
 
-    mapping(uint256 => mapping(uint256 => uint256)) guarantee; // [challengeId][indexOfAchiever] = guarantee sum of wei
-    mapping(uint256 => mapping(uint256 => uint256)) fine; // [challengeId][indexOfAchiever] = sum of fine in wei
+    mapping(uint256 => uint256) guarantee; // [challengeId] = guarantee sum of wei
+    mapping(uint256 => uint256) fine; // [challengeId] = sum of fine in wei
 
     mapping(uint256 => uint256) start; // [challengeId] = date of start of challenge
     mapping(uint256 => mapping(uint256 => uint256)) schedule; // [challengeId][indexOfItem] = duration of every schedule period in seconds
@@ -24,7 +24,7 @@ contract Challenge {
     mapping(uint256 => mapping(uint256 => uint256)) scheduleFineAvailable; // [challengeId][index] = index of schedule period for what fine taking is available
     mapping(uint256 => uint256) lastIdOfScheduleFineAvailable; // [challengeId] = last index of mapping scheduleFineAvailable
 
-    function addChallenge(uint256 _start, address _observer, uint256 _guarantee, uint256 _fine) public {
+    function addChallenge(uint256 _start, uint256 _guarantee, uint256 _fine) public {
         require(_guarantee >= _fine, "Sum of guarantee should be either equal or greater than sum of fine");
 
         lastChallengeId++;
@@ -33,14 +33,14 @@ contract Challenge {
 
         start[lastChallengeId] = _start;
 
-        lastAchieverId[lastChallengeId]++;
-        achievers[lastChallengeId][lastAchieverId[lastChallengeId]] = msg.sender;
+        guarantee[lastChallengeId] = _guarantee;
+        fine[lastChallengeId] = _fine;
+    }
 
-        lastObserverId[lastChallengeId]++;
-        observers[lastChallengeId][lastObserverId[lastChallengeId]] = _observer;
+    function addAchiever(uint256 _challengeId, uint256 _sumOfWei) public returns (uint256) {
+        require(_sumOfWei >= guarantee[_challengeId], "Sum of wei is less than required guarantee sum.");
 
-        guarantee[lastChallengeId][lastAchieverId[lastChallengeId]] = _guarantee;
-        fine[lastChallengeId][lastAchieverId[lastChallengeId]] = _fine;
+        return guarantee[_challengeId];
     }
 
     function addToSchedule(uint256 _challengeId, uint256[10] memory _schedulePeriods) public {
