@@ -1,15 +1,18 @@
 pragma solidity ^0.6.6;
 
 contract Challenge {
-    uint256 lastChallengeId;
+    address owner; // address of owner of contract
 
-    mapping(uint256 => address) owner; // [challengeId] = address of owner of challenge
+    uint256 lastChallengeId;
+    mapping(uint256 => address) ownerOfChallenge; // [challengeId] = address of owner of challenge
 
     mapping(uint256 => uint256) lastAchieverId; // [challengeId] = last id of achiever in current challenge
     mapping(uint256 => mapping(uint256 => address)) achievers; // [challengeId][indexOfAchiever] = address of achiever
+    mapping(uint256 => mapping(address => bool)) isAchiever; // [challengeId][addressOfAchiever] = is user an achiever in current challenge?
 
     mapping(uint256 => uint256) lastObserverId; // [challengeId] = last id of observer in current challenge
     mapping(uint256 => mapping(uint256 => address)) observers; // [challengeId][indexOfObserver] = address of observer
+    mapping(uint256 => mapping(address => bool)) isObserver; // [challengeId][addressOfObserver] = is user an observer in current challenge?
 
     mapping(uint256 => uint256) guarantee; // [challengeId] = guarantee sum of wei
     mapping(uint256 => uint256) fine; // [challengeId] = sum of fine in wei
@@ -24,12 +27,16 @@ contract Challenge {
     mapping(uint256 => mapping(uint256 => uint256)) scheduleFineAvailable; // [challengeId][index] = index of schedule period for what fine taking is available
     mapping(uint256 => uint256) lastIdOfScheduleFineAvailable; // [challengeId] = last index of mapping scheduleFineAvailable
 
+    constructor() public {
+        owner = msg.sender;
+    }
+
     function addChallenge(uint256 _start, uint256 _guarantee, uint256 _fine) public {
         require(_guarantee >= _fine, "Sum of guarantee should be either equal or greater than sum of fine");
 
         lastChallengeId++;
 
-        owner[lastChallengeId] = msg.sender;
+        ownerOfChallenge[lastChallengeId] = msg.sender;
 
         start[lastChallengeId] = _start;
 
@@ -44,7 +51,7 @@ contract Challenge {
     }
 
     function addToSchedule(uint256 _challengeId, uint256[10] memory _schedulePeriods) public {
-        require(msg.sender == owner[_challengeId], "Only owner of challenge can add period to schedule");
+        require(msg.sender == ownerOfChallenge[_challengeId], "Only owner of challenge can add period to schedule");
         require(idOfCurrentPeriod[_challengeId] <= lastSchedulePeriodId[_challengeId], "Challenge has already finished.");
 
         uint256 nextScheduleItemId = 0;
@@ -56,7 +63,7 @@ contract Challenge {
 
     function startChallenge(uint256 _challengeId) public {
         require(lastChallengeId >= _challengeId && _challengeId > 0, "Challenge ID doesn't exist");
-        require(msg.sender == owner[_challengeId], "Only owner of challenge can start challenge");
+        require(msg.sender == ownerOfChallenge[_challengeId], "Only owner of challenge can start challenge");
         require(idOfCurrentPeriod[_challengeId] == 0, "Challenge has already started.");
 
         if (now > start[_challengeId]) {
