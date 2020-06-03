@@ -45,7 +45,15 @@ contract Challenge {
     }
 
     function addAchiever(uint256 _challengeId, uint256 _sumOfWei) public returns (uint256) {
+        require(lastChallengeId >= _challengeId && _challengeId > 0, "Challenge ID doesn't exist");
         require(_sumOfWei >= guarantee[_challengeId], "Sum of wei is less than required guarantee sum.");
+        require(!isAchiever[_challengeId][msg.sender], "This achiever is already exist");
+        require(idOfCurrentPeriod[_challengeId] == 0, "Challenge has already started.");
+        require(idOfCurrentPeriod[_challengeId] <= lastSchedulePeriodId[_challengeId], "Challenge has already finished.");
+
+        lastAchieverId[_challengeId]++;
+        achievers[_challengeId][lastAchieverId[_challengeId]] = msg.sender;
+        isAchiever[_challengeId][msg.sender] = true;
 
         return guarantee[_challengeId];
     }
@@ -54,10 +62,10 @@ contract Challenge {
         require(msg.sender == ownerOfChallenge[_challengeId], "Only owner of challenge can add period to schedule");
         require(idOfCurrentPeriod[_challengeId] <= lastSchedulePeriodId[_challengeId], "Challenge has already finished.");
 
-        uint256 nextScheduleItemId = 0;
+        uint256 nextSchedulePeriodId = 0;
         for(uint256 i = 0; i < 10; i++) {
-            nextScheduleItemId = ++lastSchedulePeriodId[_challengeId];
-            schedule[_challengeId][nextScheduleItemId] = _schedulePeriods[i];
+            nextSchedulePeriodId = ++lastSchedulePeriodId[_challengeId];
+            schedule[_challengeId][nextSchedulePeriodId] = _schedulePeriods[i];
         }
     }
 
@@ -65,6 +73,8 @@ contract Challenge {
         require(lastChallengeId >= _challengeId && _challengeId > 0, "Challenge ID doesn't exist");
         require(msg.sender == ownerOfChallenge[_challengeId], "Only owner of challenge can start challenge");
         require(idOfCurrentPeriod[_challengeId] == 0, "Challenge has already started.");
+        require(lastAchieverId[_challengeId] > 0, "There are no achievers");
+        require(lastObserverId[_challengeId] > 0, "There are no observers");
 
         if (now > start[_challengeId]) {
             start[_challengeId] = now;
@@ -76,7 +86,7 @@ contract Challenge {
 
     function setDoneForPeriod(uint256 _challengeId) public {
         require(lastChallengeId >= _challengeId, "Challenge ID doesn't exist");
-        require(msg.sender == achievers[_challengeId][1], "Only achiever of challenge can set done for period");
+        require(isAchiever[_challengeId][msg.sender], "Only achiever of challenge can set done for period");
         require(idOfCurrentPeriod[_challengeId] <= lastSchedulePeriodId[_challengeId], "Challenge has already finished.");
 
         uint256 endTimeOfCurrentScheduleItem = startTimeOfCurrentPeriod[_challengeId] + schedule[_challengeId][idOfCurrentPeriod[_challengeId]];
