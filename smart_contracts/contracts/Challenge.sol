@@ -96,7 +96,7 @@ contract Challenge {
 
         // Start new schedule period
         idOfCurrentPeriod[_challengeId]++;
-        startTimeOfCurrentPeriod[_challengeId] = endTimeOfCurrentScheduleItem + 1;
+        startTimeOfCurrentPeriod[_challengeId] = endTimeOfCurrentScheduleItem;
     }
 
     function calcCurrentPeriod(uint256 _challengeId) public returns(bool) {
