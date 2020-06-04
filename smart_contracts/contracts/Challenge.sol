@@ -44,18 +44,46 @@ contract Challenge {
         fine[lastChallengeId] = _fine;
     }
 
-    function addAchiever(uint256 _challengeId, uint256 _sumOfWei) public returns (uint256) {
+    function addAchiever(uint256 _challengeId, uint256 _sumOfWei) external returns (uint256) {
         require(lastChallengeId >= _challengeId && _challengeId > 0, "Challenge ID doesn't exist");
         require(_sumOfWei >= guarantee[_challengeId], "Sum of wei is less than required guarantee sum.");
         require(!isAchiever[_challengeId][msg.sender], "This achiever is already exist");
+        require(!isObserver[_challengeId][msg.sender], "This user has already become achiever");
         require(idOfCurrentPeriod[_challengeId] == 0, "Challenge has already started.");
-        require(idOfCurrentPeriod[_challengeId] <= lastSchedulePeriodId[_challengeId], "Challenge has already finished.");
 
-        lastAchieverId[_challengeId]++;
-        achievers[_challengeId][lastAchieverId[_challengeId]] = msg.sender;
+        uint256 nextAchieverId = ++lastAchieverId[_challengeId];
+        achievers[_challengeId][nextAchieverId] = msg.sender;
         isAchiever[_challengeId][msg.sender] = true;
 
         return guarantee[_challengeId];
+    }
+
+    function addObservers(uint256 _challengeId, address[10] memory _observers) public {
+        require(msg.sender == ownerOfChallenge[_challengeId], "Only owner of challenge can add observer to schedule");
+        require(lastChallengeId >= _challengeId && _challengeId > 0, "Challenge ID doesn't exist");
+        require(idOfCurrentPeriod[_challengeId] == 0, "Challenge has already started.");
+
+        uint256 nextObserverId = 0;
+        for(uint256 i = 0; i < 10; i++) {
+            if (_observers[i] == address(0)) {break;} // if it is empty element, finish adding observers
+
+            require(!isObserver[_challengeId][_observers[i]], "This observer is already exist");
+            require(!isAchiever[_challengeId][_observers[i]], "This user has already become achiever");
+            nextObserverId = ++lastObserverId[_challengeId];
+            observers[_challengeId][nextObserverId] = _observers[i];
+            isObserver[_challengeId][_observers[i]] = true;
+        }
+    }
+
+    function becomeObserver(uint256 _challengeId) public {
+        require(lastChallengeId >= _challengeId && _challengeId > 0, "Challenge ID doesn't exist");
+        require(!isObserver[_challengeId][msg.sender], "This observer is already exist");
+        require(!isAchiever[_challengeId][msg.sender], "This user has already become achiever");
+        require(idOfCurrentPeriod[_challengeId] == 0, "Challenge has already started.");
+
+        uint256 nextObserverId = ++lastObserverId[_challengeId];
+        observers[_challengeId][nextObserverId] = msg.sender;
+        isObserver[_challengeId][msg.sender] = true;
     }
 
     function addToSchedule(uint256 _challengeId, uint256[10] memory _schedulePeriods) public {
@@ -64,6 +92,8 @@ contract Challenge {
 
         uint256 nextSchedulePeriodId = 0;
         for(uint256 i = 0; i < 10; i++) {
+            if (_schedulePeriods[i] == 0) {break;} // if it is empty element, finish adding schedule periods
+
             nextSchedulePeriodId = ++lastSchedulePeriodId[_challengeId];
             schedule[_challengeId][nextSchedulePeriodId] = _schedulePeriods[i];
         }
