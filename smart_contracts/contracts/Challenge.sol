@@ -44,7 +44,7 @@ contract Challenge {
         fine[lastChallengeId] = _fine;
     }
 
-    function addAchiever(uint256 _challengeId, uint256 _sumOfWei) external returns (uint256) {
+    function becomeAchiever(uint256 _challengeId, uint256 _sumOfWei) external returns (uint256) {
         require(lastChallengeId >= _challengeId && _challengeId > 0, "Challenge ID doesn't exist");
         require(_sumOfWei >= guarantee[_challengeId], "Sum of wei is less than required guarantee sum.");
         require(!isAchiever[_challengeId][msg.sender], "This achiever is already exist");
