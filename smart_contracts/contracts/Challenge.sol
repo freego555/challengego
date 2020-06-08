@@ -103,6 +103,7 @@ contract Challenge {
         require(lastChallengeId >= _challengeId && _challengeId > 0, "Challenge ID doesn't exist");
         require(msg.sender == ownerOfChallenge[_challengeId], "Only owner of challenge can start challenge");
         require(idOfCurrentPeriod[_challengeId] == 0, "Challenge has already started.");
+        require(lastSchedulePeriodId[_challengeId] > 0, "There are no periods in schedule");
         require(lastAchieverId[_challengeId] > 0, "There are no achievers");
         require(lastObserverId[_challengeId] > 0, "There are no observers");
 
