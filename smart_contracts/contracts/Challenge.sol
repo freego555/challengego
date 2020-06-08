@@ -9,6 +9,7 @@ contract Challenge {
     mapping(uint256 => uint256) lastAchieverId; // [challengeId] = last id of achiever in current challenge
     mapping(uint256 => mapping(uint256 => address)) achievers; // [challengeId][indexOfAchiever] = address of achiever
     mapping(uint256 => mapping(address => bool)) isAchiever; // [challengeId][addressOfAchiever] = is user an achiever in current challenge?
+    mapping(uint256 => uint256) amountOfFinishedAchievers; // [challengeId] = amount of finished achievers
 
     mapping(uint256 => uint256) lastObserverId; // [challengeId] = last id of observer in current challenge
     mapping(uint256 => mapping(uint256 => address)) observers; // [challengeId][indexOfObserver] = address of observer
@@ -17,15 +18,17 @@ contract Challenge {
     mapping(uint256 => uint256) guarantee; // [challengeId] = guarantee sum of wei
     mapping(uint256 => uint256) fine; // [challengeId] = sum of fine in wei
 
+    mapping(uint256 => bool) isStarted; // [challengeId] = is challenge started?
     mapping(uint256 => uint256) start; // [challengeId] = date of start of challenge
     mapping(uint256 => mapping(uint256 => uint256)) schedule; // [challengeId][indexOfItem] = duration of every schedule period in seconds
     mapping(uint256 => uint256) lastSchedulePeriodId; // [challengeId] = index of last schedule period
-    mapping(uint256 => uint256) idOfCurrentPeriod; // [challengeId] = index of current schedule period (stage of doing challenge)
-    mapping(uint256 => uint256) startTimeOfCurrentPeriod; // [challengeId] = date of start of current schedule period (stage of doing challenge)
-    mapping(uint256 => mapping(uint256 => bool)) scheduleDone; // [challengeId][indexOfItem] = result of schedule period (done or not) (stage of doing challenge)
+    mapping(uint256 => mapping(address => uint256)) idOfCurrentPeriod; // [challengeId][addressOfAchiever] = index of current schedule period for achiever (stage of doing challenge)
+    mapping(uint256 => mapping(address => uint256)) startTimeOfCurrentPeriod; // [challengeId][addressOfAchiever] = date of start of current schedule period for achiever (stage of doing challenge)
+    mapping(uint256 => mapping(address => mapping(uint256 => bool))) scheduleDone; // [challengeId][addressOfAchiever][indexOfItem] = result of schedule period (done or not) for achiever (stage of doing challenge)
 
-    mapping(uint256 => mapping(uint256 => uint256)) scheduleFineAvailable; // [challengeId][index] = index of schedule period for what fine taking is available
-    mapping(uint256 => uint256) lastIdOfScheduleFineAvailable; // [challengeId] = last index of mapping scheduleFineAvailable
+    mapping(uint256 => mapping(uint256 => uint256)) fineAvailableForPeriod; // [challengeId][fineId] = index of schedule period for what fine taking is available
+    mapping(uint256 => mapping(uint256 => address)) fineAvailableForAchiever; // [challengeId][fineId] = address of achiever for whom fine taking is available
+    mapping(uint256 => uint256) lastFineId; // [challengeId] = last fine id in challenge
 
     constructor() public {
         owner = msg.sender;
@@ -49,7 +52,7 @@ contract Challenge {
         require(_sumOfWei >= guarantee[_challengeId], "Sum of wei is less than required guarantee sum.");
         require(!isAchiever[_challengeId][msg.sender], "This achiever is already exist");
         require(!isObserver[_challengeId][msg.sender], "This user has already become achiever");
-        require(idOfCurrentPeriod[_challengeId] == 0, "Challenge has already started.");
+        require(!isStarted[_challengeId], "Challenge has already started.");
 
         uint256 nextAchieverId = ++lastAchieverId[_challengeId];
         achievers[_challengeId][nextAchieverId] = msg.sender;
@@ -61,7 +64,7 @@ contract Challenge {
     function addObservers(uint256 _challengeId, address[10] memory _observers) public {
         require(msg.sender == ownerOfChallenge[_challengeId], "Only owner of challenge can add observer to schedule");
         require(lastChallengeId >= _challengeId && _challengeId > 0, "Challenge ID doesn't exist");
-        require(idOfCurrentPeriod[_challengeId] == 0, "Challenge has already started.");
+        require(!isStarted[_challengeId], "Challenge has already started.");
 
         uint256 nextObserverId = 0;
         for(uint256 i = 0; i < 10; i++) {
@@ -79,7 +82,7 @@ contract Challenge {
         require(lastChallengeId >= _challengeId && _challengeId > 0, "Challenge ID doesn't exist");
         require(!isObserver[_challengeId][msg.sender], "This observer is already exist");
         require(!isAchiever[_challengeId][msg.sender], "This user has already become achiever");
-        require(idOfCurrentPeriod[_challengeId] == 0, "Challenge has already started.");
+        require(!isStarted[_challengeId], "Challenge has already started.");
 
         uint256 nextObserverId = ++lastObserverId[_challengeId];
         observers[_challengeId][nextObserverId] = msg.sender;
@@ -88,7 +91,7 @@ contract Challenge {
 
     function addToSchedule(uint256 _challengeId, uint256[10] memory _schedulePeriods) public {
         require(msg.sender == ownerOfChallenge[_challengeId], "Only owner of challenge can add period to schedule");
-        require(idOfCurrentPeriod[_challengeId] <= lastSchedulePeriodId[_challengeId], "Challenge has already finished.");
+        require(!isStarted[_challengeId], "Challenge has already started.");
 
         uint256 nextSchedulePeriodId = 0;
         for(uint256 i = 0; i < 10; i++) {
@@ -102,7 +105,7 @@ contract Challenge {
     function startChallenge(uint256 _challengeId) public {
         require(lastChallengeId >= _challengeId && _challengeId > 0, "Challenge ID doesn't exist");
         require(msg.sender == ownerOfChallenge[_challengeId], "Only owner of challenge can start challenge");
-        require(idOfCurrentPeriod[_challengeId] == 0, "Challenge has already started.");
+        require(!isStarted[_challengeId], "Challenge has already started.");
         require(lastSchedulePeriodId[_challengeId] > 0, "There are no periods in schedule");
         require(lastAchieverId[_challengeId] > 0, "There are no achievers");
         require(lastObserverId[_challengeId] > 0, "There are no observers");
@@ -110,48 +113,86 @@ contract Challenge {
         if (now > start[_challengeId]) {
             start[_challengeId] = now;
         }
-
-        idOfCurrentPeriod[_challengeId]++;
-        startTimeOfCurrentPeriod[_challengeId] = start[_challengeId];
     }
 
     function setDoneForPeriod(uint256 _challengeId) public {
         require(lastChallengeId >= _challengeId, "Challenge ID doesn't exist");
-        require(isAchiever[_challengeId][msg.sender], "Only achiever of challenge can set done for period");
-        require(idOfCurrentPeriod[_challengeId] <= lastSchedulePeriodId[_challengeId], "Challenge has already finished.");
+        require(isStarted[_challengeId], "Challenge isn't started.");
 
-        uint256 endTimeOfCurrentScheduleItem = startTimeOfCurrentPeriod[_challengeId] + schedule[_challengeId][idOfCurrentPeriod[_challengeId]];
-        require(endTimeOfCurrentScheduleItem >= now, "Current schedule period has already completed. At first you need to use function calcCurrentScheduleItem()");
+        address achiever = msg.sender;
+        require(isAchiever[_challengeId][achiever], "Only achiever of challenge can set done for period");
 
-        scheduleDone[_challengeId][idOfCurrentPeriod[_challengeId]] = true;
+        uint256 _idOfCurrentPeriod = idOfCurrentPeriod[_challengeId][achiever];
+        uint256 _lastSchedulePeriodId = lastSchedulePeriodId[_challengeId];
+        if (_idOfCurrentPeriod == 0) {
+            // Assign started values for the first period
+            startTimeOfCurrentPeriod[_challengeId][achiever] = start[_challengeId];
+            idOfCurrentPeriod[_challengeId][achiever]++;
+            _idOfCurrentPeriod++;
+        }
+        require(_idOfCurrentPeriod <= _lastSchedulePeriodId, "Challenge for this achiever has already finished.");
+
+        uint256 endTimeOfCurrentPeriod = startTimeOfCurrentPeriod[_challengeId][achiever] + schedule[_challengeId][_idOfCurrentPeriod];
+        require(endTimeOfCurrentPeriod >= now, "Current schedule period has already completed. At first you need to use function calcCurrentScheduleItem()");
+
+        scheduleDone[_challengeId][achiever][_idOfCurrentPeriod] = true;
 
         // Start new schedule period
-        idOfCurrentPeriod[_challengeId]++;
-        startTimeOfCurrentPeriod[_challengeId] = endTimeOfCurrentScheduleItem;
+        _idOfCurrentPeriod = ++idOfCurrentPeriod[_challengeId][achiever];
+        startTimeOfCurrentPeriod[_challengeId][achiever] = endTimeOfCurrentPeriod;
+
+        // Check if achiever has finished the challenge
+        if (_idOfCurrentPeriod > _lastSchedulePeriodId) {
+            amountOfFinishedAchievers[_challengeId]++;
+        }
     }
 
-    function calcCurrentPeriod(uint256 _challengeId) public returns(bool) {
-        require(startTimeOfCurrentPeriod[_challengeId] + schedule[_challengeId][idOfCurrentPeriod[_challengeId]] > now, "Current schedule period is actual.");
-        require(idOfCurrentPeriod[_challengeId] <= lastSchedulePeriodId[_challengeId], "Challenge has already finished.");
+    function calcCurrentPeriod(uint256 _challengeId, address _achiever) public returns(bool) {
+        require(lastChallengeId >= _challengeId, "Challenge ID doesn't exist");
+        require(isStarted[_challengeId], "Challenge isn't started.");
+        require(isAchiever[_challengeId][_achiever], "This achiever doesn't exist");
 
-        uint256 sizeOfChunk = 10; // limit amount of periods to avoid exceeding limit of gas
+        uint256 _idOfCurrentPeriod = idOfCurrentPeriod[_challengeId][_achiever];
+        uint256 _lastSchedulePeriodId = lastSchedulePeriodId[_challengeId];
+        if (_idOfCurrentPeriod == 0) {
+            // Assign started values for the first period
+            startTimeOfCurrentPeriod[_challengeId][_achiever] = start[_challengeId];
+            idOfCurrentPeriod[_challengeId][_achiever]++;
+            _idOfCurrentPeriod++;
+        }
+        require(_idOfCurrentPeriod <= _lastSchedulePeriodId, "Challenge for this achiever has already finished.");
+
+        uint256 _startTimeOfCurrentPeriod = startTimeOfCurrentPeriod[_challengeId][_achiever];
+        require(_startTimeOfCurrentPeriod + schedule[_challengeId][_idOfCurrentPeriod] > now, "Current schedule period is actual.");
+
+        uint256 maxIdOfPeriodForCurrentChunk = _idOfCurrentPeriod + 10; // limit amount of periods to avoid exceeding limit of gas
         bool isActual = false;
-        for (uint256 i = idOfCurrentPeriod[_challengeId]; i <= idOfCurrentPeriod[_challengeId] + sizeOfChunk; i++) {
-            if (startTimeOfCurrentPeriod[_challengeId] + schedule[_challengeId][i] <= now) {
-                if (scheduleDone[_challengeId][i] == false) {
-                    // Add element to scheduleFineAvailable. Observer can get fine for this period.
-                    lastIdOfScheduleFineAvailable[_challengeId]++;
-                    scheduleFineAvailable[_challengeId][lastIdOfScheduleFineAvailable[_challengeId]] = i;
-                }
+        uint256 _lastFineId = 0;
+        uint256 endTimeOfCurrentPeriod = 0;
+        for (uint256 i = _idOfCurrentPeriod; i <= maxIdOfPeriodForCurrentChunk; i++) {
+            endTimeOfCurrentPeriod = _startTimeOfCurrentPeriod + schedule[_challengeId][i];
+            if (endTimeOfCurrentPeriod <= now) {
+                // Add element into mappings fineAvailableForPeriod and fineAvailableForAchiever. Observer can get fine for this period and achiever.
+                _lastFineId = ++lastFineId[_challengeId];
+                fineAvailableForPeriod[_challengeId][_lastFineId] = i;
+                fineAvailableForAchiever[_challengeId][_lastFineId] = _achiever;
 
                 // Go to the next period
-                startTimeOfCurrentPeriod[_challengeId] += schedule[_challengeId][i];
-                idOfCurrentPeriod[_challengeId]++;
+                _startTimeOfCurrentPeriod = endTimeOfCurrentPeriod;
+                _idOfCurrentPeriod++;
             } else {
                 // Current period is actual
                 isActual = true;
                 break;
             }
+        }
+
+        startTimeOfCurrentPeriod[_challengeId][_achiever] = _startTimeOfCurrentPeriod;
+        idOfCurrentPeriod[_challengeId][_achiever] = _idOfCurrentPeriod;
+
+        // Check if achiever has finished the challenge
+        if (_idOfCurrentPeriod > _lastSchedulePeriodId) {
+            amountOfFinishedAchievers[_challengeId]++;
         }
 
         return isActual;
