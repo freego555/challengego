@@ -39,11 +39,11 @@ contract Wallet {
     function takeFineForChallenge(uint256 _challengeId, uint256 _fineId, address _observer) public {
         require(isSetChallenge, "Contract Challenge has to be set.");
 
-        uint256 sumOfFine = challengeContract.takeFineForChallenge(_challengeId, _fineId, _observer);
+        (address achiever, uint256 sumOfFine) = challengeContract.takeFineForChallenge(_challengeId, _fineId, _observer);
 
         reservedSumFromUserForChallenge[_challengeId][achiever] -= sumOfFine;
         reservedSumFromUser[achiever] -= sumOfFine;
         balance[achiever] -= sumOfFine;
-        balance[observer] += sumOfFine;
+        balance[_observer] += sumOfFine;
     }
 }
