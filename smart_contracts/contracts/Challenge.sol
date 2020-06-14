@@ -28,6 +28,8 @@ contract Challenge {
 
     mapping(uint256 => mapping(uint256 => uint256)) fineAvailableForPeriod; // [challengeId][fineId] = index of schedule period for what fine taking is available
     mapping(uint256 => mapping(uint256 => address)) fineAvailableForAchiever; // [challengeId][fineId] = address of achiever for whom fine taking is available
+    mapping(uint256 => mapping(uint256 => bool)) fineTaken; // [challengeId][fineId] = Is fine taken or not?
+    mapping(uint256 => uint256) amountOfFinesTaken; // [challengeId] = amount of fines taken from all achievers
     mapping(uint256 => uint256) lastFineId; // [challengeId] = last fine id in challenge
 
     constructor() public {
@@ -196,5 +198,17 @@ contract Challenge {
         }
 
         return isActual;
+    }
+
+    function takeFineForChallenge(uint256 _challengeId, uint256 _fineId, address _observer) external returns(address, uint256) {
+        require(lastChallengeId >= _challengeId, "Challenge ID doesn't exist");
+        require(lastFineId[_challengeId] >= _fineId, "Fine ID doesn't exist");
+        require(isObserver[_challengeId][_observer], "User isn't observer.");
+        require(!fineTaken[_challengeId][_fineId], "Fine is already taken.");
+
+        fineTaken[_challengeId][_fineId] = true;
+        amountOfFinesTaken[_challengeId]++;
+
+        return (fineAvailableForAchiever[_challengeId][_fineId], fine[_challengeId]);
     }
 }
