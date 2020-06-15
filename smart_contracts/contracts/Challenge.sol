@@ -1,7 +1,12 @@
 pragma solidity ^0.6.6;
+import './Wallet.sol';
 
 contract Challenge {
     address owner; // address of owner of contract
+
+    address public walletAddress;
+    Wallet walletContract;
+    bool public isSetWallet;
 
     uint256 lastChallengeId;
     mapping(uint256 => address) ownerOfChallenge; // [challengeId] = address of owner of challenge
@@ -36,7 +41,17 @@ contract Challenge {
         owner = msg.sender;
     }
 
+    function setContractWallet(address _walletAddress) public {
+        require(owner == msg.sender, "Only owner can set contract Wallet");
+        require(!isSetWallet, "Contract Wallet has already set");
+
+        walletAddress = _walletAddress;
+        walletContract = Wallet(_walletAddress);
+        isSetWallet = true;
+    }
+
     function addChallenge(uint256 _start, uint256 _guarantee, uint256 _fine) public {
+        require(isSetWallet, "Contract Wallet has to be set.");
         require(_guarantee >= _fine, "Sum of guarantee should be either equal or greater than sum of fine");
 
         lastChallengeId++;
@@ -51,6 +66,7 @@ contract Challenge {
 
     function becomeAchiever(uint256 _challengeId, uint256 _sumOfWei) external returns (uint256) {
         require(lastChallengeId >= _challengeId && _challengeId > 0, "Challenge ID doesn't exist");
+        require(msg.sender == walletAddress, "Sender isn't contract Wallet.");
         require(_sumOfWei >= guarantee[_challengeId], "Sum of wei is less than required guarantee sum.");
         require(!isAchiever[_challengeId][msg.sender], "This achiever is already exist");
         require(!isObserver[_challengeId][msg.sender], "This user has already become achiever");
@@ -202,6 +218,7 @@ contract Challenge {
 
     function takeFineForChallenge(uint256 _challengeId, uint256 _fineId, address _observer) external returns(address, uint256) {
         require(lastChallengeId >= _challengeId, "Challenge ID doesn't exist");
+        require(msg.sender == walletAddress, "Sender isn't contract Wallet.");
         require(lastFineId[_challengeId] >= _fineId, "Fine ID doesn't exist");
         require(isObserver[_challengeId][_observer], "User isn't observer.");
         require(!fineTaken[_challengeId][_fineId], "Fine is already taken.");
