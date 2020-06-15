@@ -8,7 +8,7 @@ contract Wallet {
     mapping(address => uint256) public reservedSumFromUser; // [user] = sum of wei of current user that is reserved
     mapping(uint256 => mapping(address => uint256)) public reservedSumFromUserForChallenge; // [challenge][user] = sum of wei of current user for challenge
 
-    address public challengeAddress;
+    address payable public challengeAddress;
     Challenge challengeContract;
     bool public isSetChallenge;
 
@@ -16,7 +16,11 @@ contract Wallet {
         owner = msg.sender;
     }
 
-    function setContractChallenge(address _challengeAddress) public {
+    receive() external payable {
+        require(false, "Contract Wallet doesn't accept payments.");
+    }
+
+    function setContractChallenge(address payable _challengeAddress) public {
         require(owner == msg.sender, "Only owner can set contract Challenge");
         require(!isSetChallenge, "Contract Challenge has already set");
 

@@ -4,7 +4,7 @@ import './Wallet.sol';
 contract Challenge {
     address public owner; // address of owner of contract
 
-    address public walletAddress;
+    address payable public walletAddress;
     Wallet walletContract;
     bool public isSetWallet;
 
@@ -42,7 +42,11 @@ contract Challenge {
         owner = msg.sender;
     }
 
-    function setContractWallet(address _walletAddress) public {
+    receive() external payable {
+        require(false, "Contract Challenge doesn't accept payments.");
+    }
+
+    function setContractWallet(address payable _walletAddress) public {
         require(owner == msg.sender, "Only owner can set contract Wallet");
         require(!isSetWallet, "Contract Wallet has already set");
 
