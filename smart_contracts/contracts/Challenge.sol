@@ -64,17 +64,17 @@ contract Challenge {
         fine[lastChallengeId] = _fine;
     }
 
-    function becomeAchiever(uint256 _challengeId, uint256 _sumOfWei) external returns (uint256) {
+    function becomeAchiever(uint256 _challengeId, address _achiever, uint256 _sumOfWei) external returns (uint256) {
         require(lastChallengeId >= _challengeId && _challengeId > 0, "Challenge ID doesn't exist");
         require(msg.sender == walletAddress, "Sender isn't contract Wallet.");
         require(_sumOfWei >= guarantee[_challengeId], "Sum of wei is less than required guarantee sum.");
-        require(!isAchiever[_challengeId][msg.sender], "This achiever is already exist");
-        require(!isObserver[_challengeId][msg.sender], "This user has already become achiever");
+        require(!isAchiever[_challengeId][_achiever], "This achiever is already exist");
+        require(!isObserver[_challengeId][_achiever], "This user has already become achiever");
         require(!isStarted[_challengeId], "Challenge has already started.");
 
         uint256 nextAchieverId = ++lastAchieverId[_challengeId];
-        achievers[_challengeId][nextAchieverId] = msg.sender;
-        isAchiever[_challengeId][msg.sender] = true;
+        achievers[_challengeId][nextAchieverId] = _achiever;
+        isAchiever[_challengeId][_achiever] = true;
 
         return guarantee[_challengeId];
     }

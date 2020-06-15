@@ -29,7 +29,7 @@ contract Wallet {
         require(isSetChallenge, "Contract Challenge has to be set.");
         require(_challengeId > 0, "Challenge ID doesn't exist.");
 
-        uint256 sumOfGuarantee = challengeContract.becomeAchiever(_challengeId, msg.value);
+        uint256 sumOfGuarantee = challengeContract.becomeAchiever(_challengeId, msg.sender, msg.value);
 
         reservedSumFromUserForChallenge[_challengeId][msg.sender] = sumOfGuarantee;
         reservedSumFromUser[msg.sender] += sumOfGuarantee;
