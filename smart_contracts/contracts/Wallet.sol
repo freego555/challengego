@@ -2,15 +2,15 @@ pragma solidity ^0.6.6;
 import './Challenge.sol';
 
 contract Wallet {
-    address owner;
+    address public owner;
 
     mapping(address => uint256) balance; // [user] = sum of wei on the balance of current user
-    mapping(address => uint256) reservedSumFromUser; // [user] = sum of wei of current user that is reserved
-    mapping(uint256 => mapping(address => uint256)) reservedSumFromUserForChallenge; // [challenge][user] = sum of wei of current user for challenge
+    mapping(address => uint256) public reservedSumFromUser; // [user] = sum of wei of current user that is reserved
+    mapping(uint256 => mapping(address => uint256)) public reservedSumFromUserForChallenge; // [challenge][user] = sum of wei of current user for challenge
 
-    address challengeAddress;
+    address public challengeAddress;
     Challenge challengeContract;
-    bool isSetChallenge;
+    bool public isSetChallenge;
 
     constructor() public {
         owner = msg.sender;

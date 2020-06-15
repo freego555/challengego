@@ -2,40 +2,40 @@ pragma solidity ^0.6.6;
 import './Wallet.sol';
 
 contract Challenge {
-    address owner; // address of owner of contract
+    address public owner; // address of owner of contract
 
     address public walletAddress;
     Wallet walletContract;
     bool public isSetWallet;
 
-    uint256 lastChallengeId;
-    mapping(uint256 => address) ownerOfChallenge; // [challengeId] = address of owner of challenge
+    uint256 public lastChallengeId;
+    mapping(uint256 => address) public ownerOfChallenge; // [challengeId] = address of owner of challenge
 
-    mapping(uint256 => uint256) lastAchieverId; // [challengeId] = last id of achiever in current challenge
-    mapping(uint256 => mapping(uint256 => address)) achievers; // [challengeId][indexOfAchiever] = address of achiever
-    mapping(uint256 => mapping(address => bool)) isAchiever; // [challengeId][addressOfAchiever] = is user an achiever in current challenge?
-    mapping(uint256 => uint256) amountOfFinishedAchievers; // [challengeId] = amount of finished achievers
+    mapping(uint256 => uint256) public lastAchieverId; // [challengeId] = last id of achiever in current challenge
+    mapping(uint256 => mapping(uint256 => address)) public achievers; // [challengeId][indexOfAchiever] = address of achiever
+    mapping(uint256 => mapping(address => bool)) public isAchiever; // [challengeId][addressOfAchiever] = is user an achiever in current challenge?
+    mapping(uint256 => uint256) public amountOfFinishedAchievers; // [challengeId] = amount of finished achievers
 
-    mapping(uint256 => uint256) lastObserverId; // [challengeId] = last id of observer in current challenge
-    mapping(uint256 => mapping(uint256 => address)) observers; // [challengeId][indexOfObserver] = address of observer
-    mapping(uint256 => mapping(address => bool)) isObserver; // [challengeId][addressOfObserver] = is user an observer in current challenge?
+    mapping(uint256 => uint256) public lastObserverId; // [challengeId] = last id of observer in current challenge
+    mapping(uint256 => mapping(uint256 => address)) public observers; // [challengeId][indexOfObserver] = address of observer
+    mapping(uint256 => mapping(address => bool)) public isObserver; // [challengeId][addressOfObserver] = is user an observer in current challenge?
 
-    mapping(uint256 => uint256) guarantee; // [challengeId] = guarantee sum of wei
-    mapping(uint256 => uint256) fine; // [challengeId] = sum of fine in wei
+    mapping(uint256 => uint256) public guarantee; // [challengeId] = guarantee sum of wei
+    mapping(uint256 => uint256) public fine; // [challengeId] = sum of fine in wei
 
-    mapping(uint256 => bool) isStarted; // [challengeId] = is challenge started?
-    mapping(uint256 => uint256) start; // [challengeId] = date of start of challenge
-    mapping(uint256 => mapping(uint256 => uint256)) schedule; // [challengeId][indexOfItem] = duration of every schedule period in seconds
-    mapping(uint256 => uint256) lastSchedulePeriodId; // [challengeId] = index of last schedule period
-    mapping(uint256 => mapping(address => uint256)) idOfCurrentPeriod; // [challengeId][addressOfAchiever] = index of current schedule period for achiever (stage of doing challenge)
-    mapping(uint256 => mapping(address => uint256)) startTimeOfCurrentPeriod; // [challengeId][addressOfAchiever] = date of start of current schedule period for achiever (stage of doing challenge)
-    mapping(uint256 => mapping(address => mapping(uint256 => bool))) scheduleDone; // [challengeId][addressOfAchiever][indexOfItem] = result of schedule period (done or not) for achiever (stage of doing challenge)
+    mapping(uint256 => bool) public isStarted; // [challengeId] = is challenge started?
+    mapping(uint256 => uint256) public start; // [challengeId] = date of start of challenge
+    mapping(uint256 => mapping(uint256 => uint256)) public schedule; // [challengeId][indexOfItem] = duration of every schedule period in seconds
+    mapping(uint256 => uint256) public lastSchedulePeriodId; // [challengeId] = index of last schedule period
+    mapping(uint256 => mapping(address => uint256)) public idOfCurrentPeriod; // [challengeId][addressOfAchiever] = index of current schedule period for achiever (stage of doing challenge)
+    mapping(uint256 => mapping(address => uint256)) public startTimeOfCurrentPeriod; // [challengeId][addressOfAchiever] = date of start of current schedule period for achiever (stage of doing challenge)
+    mapping(uint256 => mapping(address => mapping(uint256 => bool))) public scheduleDone; // [challengeId][addressOfAchiever][indexOfItem] = result of schedule period (done or not) for achiever (stage of doing challenge)
 
-    mapping(uint256 => mapping(uint256 => uint256)) fineAvailableForPeriod; // [challengeId][fineId] = index of schedule period for what fine taking is available
-    mapping(uint256 => mapping(uint256 => address)) fineAvailableForAchiever; // [challengeId][fineId] = address of achiever for whom fine taking is available
-    mapping(uint256 => mapping(uint256 => bool)) fineTaken; // [challengeId][fineId] = Is fine taken or not?
-    mapping(uint256 => uint256) amountOfFinesTaken; // [challengeId] = amount of fines taken from all achievers
-    mapping(uint256 => uint256) lastFineId; // [challengeId] = last fine id in challenge
+    mapping(uint256 => mapping(uint256 => uint256)) public fineAvailableForPeriod; // [challengeId][fineId] = index of schedule period for what fine taking is available
+    mapping(uint256 => mapping(uint256 => address)) public fineAvailableForAchiever; // [challengeId][fineId] = address of achiever for whom fine taking is available
+    mapping(uint256 => mapping(uint256 => bool)) public fineTaken; // [challengeId][fineId] = Is fine taken or not?
+    mapping(uint256 => uint256) public amountOfFinesTaken; // [challengeId] = amount of fines taken from all achievers
+    mapping(uint256 => uint256) public lastFineId; // [challengeId] = last fine id in challenge
 
     constructor() public {
         owner = msg.sender;
