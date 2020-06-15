@@ -46,4 +46,11 @@ contract Wallet {
         balance[achiever] -= sumOfFine;
         balance[_observer] += sumOfFine;
     }
+
+    function finishChallenge(uint256 _challengeId, address _achiever) external {
+        require(msg.sender == challengeAddress, "Sender isn't contract Challenge.");
+
+        reservedSumFromUser[_achiever] -= reservedSumFromUserForChallenge[_challengeId][_achiever];
+        reservedSumFromUserForChallenge[_challengeId][_achiever] = 0;
+    }
 }

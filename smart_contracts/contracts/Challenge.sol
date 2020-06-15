@@ -24,6 +24,7 @@ contract Challenge {
     mapping(uint256 => uint256) public fine; // [challengeId] = sum of fine in wei
 
     mapping(uint256 => bool) public isStarted; // [challengeId] = is challenge started?
+    mapping(uint256 => mapping(address => bool)) public isFinishedForAchiever; // [challengeId][addressOfAchiever = is challenge fihished for the achiever?
     mapping(uint256 => uint256) public start; // [challengeId] = date of start of challenge
     mapping(uint256 => mapping(uint256 => uint256)) public schedule; // [challengeId][indexOfItem] = duration of every schedule period in seconds
     mapping(uint256 => uint256) public lastSchedulePeriodId; // [challengeId] = index of last schedule period
@@ -33,8 +34,8 @@ contract Challenge {
 
     mapping(uint256 => mapping(uint256 => uint256)) public fineAvailableForPeriod; // [challengeId][fineId] = index of schedule period for what fine taking is available
     mapping(uint256 => mapping(uint256 => address)) public fineAvailableForAchiever; // [challengeId][fineId] = address of achiever for whom fine taking is available
+    mapping(uint256 => mapping(address => uint256)) public amountOfFinesAvailableForAchiever; // [challengeId][addressOfAchiever] = amount of fines available for achiever
     mapping(uint256 => mapping(uint256 => bool)) public fineTaken; // [challengeId][fineId] = Is fine taken or not?
-    mapping(uint256 => uint256) public amountOfFinesTaken; // [challengeId] = amount of fines taken from all achievers
     mapping(uint256 => uint256) public lastFineId; // [challengeId] = last fine id in challenge
 
     constructor() public {
@@ -194,6 +195,7 @@ contract Challenge {
                 _lastFineId = ++lastFineId[_challengeId];
                 fineAvailableForPeriod[_challengeId][_lastFineId] = i;
                 fineAvailableForAchiever[_challengeId][_lastFineId] = _achiever;
+                amountOfFinesAvailableForAchiever[_challengeId][_achiever]++;
 
                 // Go to the next period
                 _startTimeOfCurrentPeriod = endTimeOfCurrentPeriod;
@@ -223,9 +225,22 @@ contract Challenge {
         require(isObserver[_challengeId][_observer], "User isn't observer.");
         require(!fineTaken[_challengeId][_fineId], "Fine is already taken.");
 
-        fineTaken[_challengeId][_fineId] = true;
-        amountOfFinesTaken[_challengeId]++;
+        address achiever = fineAvailableForAchiever[_challengeId][_fineId];
 
-        return (fineAvailableForAchiever[_challengeId][_fineId], fine[_challengeId]);
+        fineTaken[_challengeId][_fineId] = true;
+        amountOfFinesAvailableForAchiever[_challengeId][achiever]--;
+
+        return (achiever, fine[_challengeId]);
+    }
+
+    function finishChallenge(uint256 _challengeId, address _achiever) public {
+        require(lastChallengeId >= _challengeId, "Challenge ID doesn't exist");
+        require(isAchiever[_challengeId][_achiever], "User from parameter '_achiever' has to be an achiever.");
+        require(idOfCurrentPeriod[_challengeId][_achiever] > lastSchedulePeriodId[_challengeId], "Challenge for this achiever is continued.");
+        require(amountOfFinesAvailableForAchiever[_challengeId][_achiever] == 0, "All of the fines has to be taken from achiever.");
+        require(!isFinishedForAchiever[_challengeId][_achiever], "Challenge is already finished for the achiever.");
+
+        isFinishedForAchiever[_challengeId][_achiever] = true;
+        walletContract.finishChallenge(_challengeId, _achiever);
     }
 }
