@@ -25,6 +25,18 @@ contract Wallet {
         isSetChallenge = true;
     }
 
+    function getAvailableBalance(address _user) view public returns(uint256) {
+        return balance[_user] - reservedSumFromUser[_user];
+    }
+
+    function withdraw(address payable _user, uint256 _sumOfWei) public {
+        require(getAvailableBalance(msg.sender) >= _sumOfWei, "Available balance isn't enough to withdraw funds.");
+        require(_user != address(0), "Trying to withdraw funds to 0-address was blocked.");
+
+        balance[msg.sender] -= _sumOfWei;
+        _user.transfer(_sumOfWei);
+    }
+
     function becomeAchiever(uint256 _challengeId) payable public {
         require(isSetChallenge, "Contract Challenge has to be set.");
         require(_challengeId > 0, "Challenge ID doesn't exist.");
