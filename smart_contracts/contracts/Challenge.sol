@@ -136,6 +136,8 @@ contract Challenge {
         if (now > start[_challengeId]) {
             start[_challengeId] = now;
         }
+
+        isStarted[_challengeId] = true;
     }
 
     function setDoneForPeriod(uint256 _challengeId) public {
@@ -186,7 +188,7 @@ contract Challenge {
         require(_idOfCurrentPeriod <= _lastSchedulePeriodId, "Challenge for this achiever has already finished.");
 
         uint256 _startTimeOfCurrentPeriod = startTimeOfCurrentPeriod[_challengeId][_achiever];
-        require(_startTimeOfCurrentPeriod + schedule[_challengeId][_idOfCurrentPeriod] > now, "Current schedule period is actual.");
+        require(_startTimeOfCurrentPeriod + schedule[_challengeId][_idOfCurrentPeriod] <= now, "Current schedule period is actual.");
 
         uint256 maxIdOfPeriodForCurrentChunk = _idOfCurrentPeriod + 10; // limit amount of periods to avoid exceeding limit of gas
         bool isActual = false;
