@@ -57,6 +57,7 @@ contract Wallet {
 
         (address achiever, uint256 sumOfFine) = challengeContract.takeFineForChallenge(_challengeId, _fineId, _observer);
 
+        require(reservedSumFromUserForChallenge[_challengeId][achiever] >= sumOfFine, "Reserved sum from user for this challenge isn't enough.");
         reservedSumFromUserForChallenge[_challengeId][achiever] -= sumOfFine;
         reservedSumFromUser[achiever] -= sumOfFine;
         balance[achiever] -= sumOfFine;
