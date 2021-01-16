@@ -43,13 +43,17 @@
     "url": "https://github.com/freego555/challengego/issues"
   },
   "dependencies": {
+    "@metamask/onboarding": "^1.0.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.0",
     "@testing-library/user-event": "^7.2.1",
+    "antd": "^4.7.3",
     "bootstrap": "^4.4.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-scripts": "^3.4.3"
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "^3.4.3",
+    "web3": "^1.2.11"
   },
   "devDependencies": {
     "ganache-cli": "^6.9.1",
