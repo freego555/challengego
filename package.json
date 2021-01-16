@@ -1,10 +1,28 @@
 {
   "name": "challengego",
   "version": "0.1.0",
+  "private": true,
   "description": "Motivate yourself to do more through taking part in a challenge.",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "repository": {
     "type": "git",
@@ -24,9 +42,17 @@
   "bugs": {
     "url": "https://github.com/freego555/challengego/issues"
   },
-  "homepage": "https://github.com/freego555/challengego#readme",
+  "dependencies": {
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.4.0",
+    "@testing-library/user-event": "^7.2.1",
+    "bootstrap": "^4.4.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-scripts": "^3.4.3"
+  },
   "devDependencies": {
     "ganache-cli": "^6.9.1",
-    "truffle": "^5.1.35"
+    "truffle": "^5.1.44"
   }
 }
