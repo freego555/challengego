@@ -126,9 +126,9 @@ class Challenge extends Component {
     this.setState({challengeInfo, isEditingSchedule: false});
   }
 
-  onEditEndDate = (e, index) => {
+  onEditEndDate = (dateMoment, index) => {
     let challengeInfo = this.state.challengeInfo;
-    challengeInfo.schedule[index].endDate = e.target.value;
+    challengeInfo.schedule[index].endDate = new Date(dateMoment.unix());
 
     this.setState({challengeInfo});
   }
