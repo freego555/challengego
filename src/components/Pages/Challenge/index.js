@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import { Form, Input, InputNumber, Button, DatePicker } from 'antd';
 import { Row, Col } from 'antd';
 import ScheduleRow from './Blocks/ScheduleRow';
+import moment from 'moment';
 
 class Challenge extends Component {
   constructor (props) {
@@ -111,9 +112,10 @@ class Challenge extends Component {
     this.setState({challengeInfo, isEditingSchedule: true});
   }
 
-  onConfirmEditSchedule = (e, index) => {
+  onConfirmEditSchedule = (endDate, index) => {
     let challengeInfo = this.state.challengeInfo;
     challengeInfo.schedule[index].isEditing = false;
+    challengeInfo.schedule[index].endDate = endDate;
     challengeInfo.schedule[index].duration = challengeInfo.schedule[index].endDate.unix() - challengeInfo.schedule[index].beginDate.unix();
 
     this.setState({challengeInfo, isEditingSchedule: false});
@@ -124,13 +126,6 @@ class Challenge extends Component {
     challengeInfo.schedule[index].isEditing = false;
 
     this.setState({challengeInfo, isEditingSchedule: false});
-  }
-
-  onEditEndDate = (dateMoment, index) => {
-    let challengeInfo = this.state.challengeInfo;
-    challengeInfo.schedule[index].endDate = new Date(dateMoment.unix());
-
-    this.setState({challengeInfo});
   }
 
   onDeleteSchedule = (e, index) => {
@@ -166,7 +161,7 @@ class Challenge extends Component {
         </div>
 
         <div>
-          {(this.state.challengeInfo.start) ? <div>Start date: {new Date(this.state.challengeInfo.start).toString()}</div> : null}
+          {(this.state.challengeInfo.start) ? <div>Start date: {moment.unix(this.state.challengeInfo.start).toString()}</div> : null}
           {(this.state.challengeInfo.myRole) ? <div>My role: {this.state.challengeInfo.myRole}</div> : null}
           {(this.state.challengeInfo.lastAchieverId) ? <div>Participants amount: {this.state.challengeInfo.lastAchieverId}</div> : null}
           {(this.state.challengeInfo.lastObserverId) ? <div>Observers amount: {this.state.challengeInfo.lastObserverId}</div> : null}
@@ -182,8 +177,8 @@ class Challenge extends Component {
           </Row>
 
           {this.state.challengeInfo.schedule.map((period, index) => {
-            period.beginDate = new Date(beginDateUnix);
-            period.endDate = new Date(beginDateUnix + period);
+            period.beginDate = moment.unix(beginDateUnix);
+            period.endDate = moment.unix(beginDateUnix + period);
             beginDateUnix += period;
 
             return (
@@ -194,7 +189,6 @@ class Challenge extends Component {
                 isEditing={period.isEditing}
                 isDeleting={period.isDeleting}
                 editButton={{func: this.onEditSchedule, isAvailable: period.isNew && !this.state.isEditingSchedule}}
-                handleEditEndDate={this.onEditEndDate}
                 confirmEditButton={{func: this.onConfirmEditSchedule, isAvailable: period.isEditing}}
                 discardEditButton={{func: this.onDiscardEditSchedule, isAvailable: period.isEditing}}
                 confirmDeleteButton={{func: this.onConfirmDeleteSchedule, isAvailable: period.isDeleting}}
