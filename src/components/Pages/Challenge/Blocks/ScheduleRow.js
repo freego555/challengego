@@ -14,7 +14,7 @@ class ScheduleRow extends Component {
   render() {
     return (
       <Row>
-        <Col>{this.props.index}</Col>
+        <Col>{this.props.key+1}</Col>
 
         <Col>{this.props.beginDate}</Col>
 
@@ -37,8 +37,10 @@ class ScheduleRow extends Component {
         <Col>
           <Row>
             <Col>
+              {this.props.addButton.isAvailable && <Button type='primary' onClick={(e) => this.props.addButton.func(this.props.beginDate, this.state.endDate)}>Add new period</Button>}
+
               {this.props.editButton.isAvailable && <Button type='primary' onClick={(e) => this.props.editButton.func(e, this.props.index)}>Edit</Button>}
-              {this.props.isEditing && <Button type='primary' onClick={(e) => this.props.confirmEditButton.func(this.state.endDate, this.props.index)}>Confirm</Button>}
+              {this.props.isEditing && <Button type='primary' onClick={(e) => this.props.confirmEditButton.func(this.props.beginDate, this.state.endDate, this.props.index)}>Confirm</Button>}
               {this.props.isEditing && <Button type='primary' onClick={(e) => this.props.discardEditButton.func(e, this.props.index)}>Discard</Button>}
 
               {this.props.deleteButton.isAvailable && <Button type='primary' onClick={(e) => this.props.deleteButton.func(e, this.props.index)}>Delete</Button>}

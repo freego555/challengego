@@ -105,6 +105,18 @@ class Challenge extends Component {
     this.setState({challengeInfo: result});
   }
 
+  onAddSchedule = (beginDate, endDate) => {
+    let challengeInfo = this.state.challengeInfo;
+    challengeInfo.schedule.push({
+      duration: endDate.unix() - beginDate.unix(),
+      isNew: true,
+      isEditing: false,
+      isDeleting: false
+    });
+
+    this.setState({challengeInfo, isEditingSchedule: true});
+  }
+
   onEditSchedule = (e, index) => {
     let challengeInfo = this.state.challengeInfo;
     challengeInfo.schedule[index].isEditing = true;
@@ -112,11 +124,10 @@ class Challenge extends Component {
     this.setState({challengeInfo, isEditingSchedule: true});
   }
 
-  onConfirmEditSchedule = (endDate, index) => {
+  onConfirmEditSchedule = (beginDate, endDate, index) => {
     let challengeInfo = this.state.challengeInfo;
     challengeInfo.schedule[index].isEditing = false;
-    challengeInfo.schedule[index].endDate = endDate;
-    challengeInfo.schedule[index].duration = challengeInfo.schedule[index].endDate.unix() - challengeInfo.schedule[index].beginDate.unix();
+    challengeInfo.schedule[index].duration = endDate.unix() - beginDate.unix();
 
     this.setState({challengeInfo, isEditingSchedule: false});
   }
@@ -151,6 +162,7 @@ class Challenge extends Component {
 
   render() {
     let beginDateUnix = this.state.challengeInfo.start;
+    let indexRow = 0;
 
     return (
       <div>
@@ -177,17 +189,18 @@ class Challenge extends Component {
           </Row>
 
           {this.state.challengeInfo.schedule.map((period, index) => {
-            period.beginDate = moment.unix(beginDateUnix);
-            period.endDate = moment.unix(beginDateUnix + period);
-            beginDateUnix += period;
+            const beginDate = moment.unix(beginDateUnix);
+            const endDate = moment.unix(beginDateUnix + period.duration);
+            beginDateUnix += period.duration;
 
             return (
               <ScheduleRow
-                key={index}
-                beginDate={period.beginDate}
-                endDate={period.endDate}
+                key={indexRow++}
+                beginDate={beginDate}
+                endDate={endDate}
                 isEditing={period.isEditing}
                 isDeleting={period.isDeleting}
+                addButton={{func: ()=>{}, isAvailable: false}}
                 editButton={{func: this.onEditSchedule, isAvailable: period.isNew && !this.state.isEditingSchedule}}
                 confirmEditButton={{func: this.onConfirmEditSchedule, isAvailable: period.isEditing}}
                 discardEditButton={{func: this.onDiscardEditSchedule, isAvailable: period.isEditing}}
@@ -197,6 +210,21 @@ class Challenge extends Component {
               />
             );
           })}
+
+          <ScheduleRow
+            key={indexRow++}
+            beginDate={moment.unix(beginDateUnix)}
+            endDate={moment.unix(beginDateUnix)}
+            isEditing={false}
+            isDeleting={false}
+            addButton={{func: this.onAddSchedule, isAvailable: true}}
+            editButton={{func: ()=>{}, isAvailable: false}}
+            confirmEditButton={{func: ()=>{}, isAvailable: false}}
+            discardEditButton={{func: ()=>{}, isAvailable: false}}
+            confirmDeleteButton={{func: ()=>{}, isAvailable: false}}
+            discardDeleteButton={{func: ()=>{}, isAvailable: false}}
+            deleteButton={{func: ()=>{}, isAvailable: false}}
+          />
         </div>
       </div>
     );
