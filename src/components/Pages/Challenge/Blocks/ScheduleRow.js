@@ -14,23 +14,23 @@ class ScheduleRow extends Component {
   render() {
     return (
       <Row>
-        <Col>{this.props.key+1}</Col>
+        <Col>{this.props.index + 1}</Col>
 
-        <Col>{this.props.beginDate}</Col>
+        <Col>{this.props.beginDate.format()}</Col>
 
         <Col>
-          {this.props.isEditing ?
+          {this.props.isEditing || this.props.addButton.isAvailable ?
             <DatePicker
               showTime
               format="YYYY-MM-DD HH:mm:ss"
               defaultValue={this.state.endDate}
               onChange={(dateMoment) => {
-                if (dateMoment.isAfer(this.props.beginDate)) {
-                  this.setState({endDate: dateMoment})
+                if (dateMoment.isAfter(this.props.beginDate)) {
+                  this.setState({endDate: dateMoment});
                 }
               }}
             />
-            : this.state.endDate
+            : this.state.endDate.format()
           }
         </Col>
 

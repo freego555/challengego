@@ -114,7 +114,7 @@ class Challenge extends Component {
       isDeleting: false
     });
 
-    this.setState({challengeInfo, isEditingSchedule: true});
+    this.setState({challengeInfo});
   }
 
   onEditSchedule = (e, index) => {
@@ -173,58 +173,95 @@ class Challenge extends Component {
         </div>
 
         <div>
-          {(this.state.challengeInfo.start) ? <div>Start date: {moment.unix(this.state.challengeInfo.start).toString()}</div> : null}
+          {(this.state.challengeInfo.start) ?
+            <div>Start date: {moment.unix(this.state.challengeInfo.start).toString()}</div> : null}
           {(this.state.challengeInfo.myRole) ? <div>My role: {this.state.challengeInfo.myRole}</div> : null}
-          {(this.state.challengeInfo.lastAchieverId) ? <div>Participants amount: {this.state.challengeInfo.lastAchieverId}</div> : null}
-          {(this.state.challengeInfo.lastObserverId) ? <div>Observers amount: {this.state.challengeInfo.lastObserverId}</div> : null}
+          {(this.state.challengeInfo.lastAchieverId) ?
+            <div>Participants amount: {this.state.challengeInfo.lastAchieverId}</div> : null}
+          {(this.state.challengeInfo.lastObserverId) ?
+            <div>Observers amount: {this.state.challengeInfo.lastObserverId}</div> : null}
           {(this.state.challengeInfo.guarantee) ? <div>Guarantee: {this.state.challengeInfo.guarantee}</div> : null}
           {(this.state.challengeInfo.fine) ? <div>Fine: {this.state.challengeInfo.fine}</div> : null}
 
-          <h1>Challenge Schedule</h1>
-          <Row>
-            <Col>#</Col>
-            <Col>Begin date</Col>
-            <Col>End date</Col>
-            <Col>Actions</Col>
-          </Row>
+          {(this.state.challengeInfo.start) ? <div>
+              <h1>Challenge Schedule</h1>
+              <Row>
+                <Col>#</Col>
+                <Col>Begin date</Col>
+                <Col>End date</Col>
+                <Col>Actions</Col>
+              </Row>
 
-          {this.state.challengeInfo.schedule.map((period, index) => {
-            const beginDate = moment.unix(beginDateUnix);
-            const endDate = moment.unix(beginDateUnix + period.duration);
-            beginDateUnix += period.duration;
+              {(this.state.challengeInfo.schedule.length) ?
+                this.state.challengeInfo.schedule.map((period, index) => {
+                  const beginDate = moment.unix(beginDateUnix);
+                  const endDate = moment.unix(beginDateUnix + period.duration);
+                  beginDateUnix += period.duration;
 
-            return (
+                  return (
+                    <ScheduleRow
+                      key={indexRow}
+                      index={indexRow++}
+                      beginDate={beginDate}
+                      endDate={endDate}
+                      isEditing={period.isEditing}
+                      isDeleting={period.isDeleting}
+                      addButton={{
+                        func: () => {
+                        }, isAvailable: false,
+                      }}
+                      editButton={{
+                        func: this.onEditSchedule,
+                        isAvailable: period.isNew && !this.state.isEditingSchedule,
+                      }}
+                      confirmEditButton={{func: this.onConfirmEditSchedule, isAvailable: period.isEditing}}
+                      discardEditButton={{func: this.onDiscardEditSchedule, isAvailable: period.isEditing}}
+                      confirmDeleteButton={{func: this.onConfirmDeleteSchedule, isAvailable: period.isDeleting}}
+                      discardDeleteButton={{func: this.onDiscardDeleteSchedule, isAvailable: period.isDeleting}}
+                      deleteButton={{
+                        func: this.onDeleteSchedule,
+                        isAvailable: period.isNew && !this.state.isEditingSchedule,
+                      }}
+                    />
+                  );
+                })
+                : null}
+
               <ScheduleRow
-                key={indexRow++}
-                beginDate={beginDate}
-                endDate={endDate}
-                isEditing={period.isEditing}
-                isDeleting={period.isDeleting}
-                addButton={{func: ()=>{}, isAvailable: false}}
-                editButton={{func: this.onEditSchedule, isAvailable: period.isNew && !this.state.isEditingSchedule}}
-                confirmEditButton={{func: this.onConfirmEditSchedule, isAvailable: period.isEditing}}
-                discardEditButton={{func: this.onDiscardEditSchedule, isAvailable: period.isEditing}}
-                confirmDeleteButton={{func: this.onConfirmDeleteSchedule, isAvailable: period.isDeleting}}
-                discardDeleteButton={{func: this.onDiscardDeleteSchedule, isAvailable: period.isDeleting}}
-                deleteButton={{func: this.onDeleteSchedule, isAvailable: period.isNew && !this.state.isEditingSchedule}}
+                key={indexRow}
+                index={indexRow++}
+                beginDate={moment.unix(beginDateUnix)}
+                endDate={moment.unix(beginDateUnix)}
+                isEditing={false}
+                isDeleting={false}
+                addButton={{func: this.onAddSchedule, isAvailable: true}}
+                editButton={{
+                  func: () => {
+                  }, isAvailable: false,
+                }}
+                confirmEditButton={{
+                  func: () => {
+                  }, isAvailable: false,
+                }}
+                discardEditButton={{
+                  func: () => {
+                  }, isAvailable: false,
+                }}
+                confirmDeleteButton={{
+                  func: () => {
+                  }, isAvailable: false,
+                }}
+                discardDeleteButton={{
+                  func: () => {
+                  }, isAvailable: false,
+                }}
+                deleteButton={{
+                  func: () => {
+                  }, isAvailable: false,
+                }}
               />
-            );
-          })}
-
-          <ScheduleRow
-            key={indexRow++}
-            beginDate={moment.unix(beginDateUnix)}
-            endDate={moment.unix(beginDateUnix)}
-            isEditing={false}
-            isDeleting={false}
-            addButton={{func: this.onAddSchedule, isAvailable: true}}
-            editButton={{func: ()=>{}, isAvailable: false}}
-            confirmEditButton={{func: ()=>{}, isAvailable: false}}
-            discardEditButton={{func: ()=>{}, isAvailable: false}}
-            confirmDeleteButton={{func: ()=>{}, isAvailable: false}}
-            discardDeleteButton={{func: ()=>{}, isAvailable: false}}
-            deleteButton={{func: ()=>{}, isAvailable: false}}
-          />
+            </div>
+            : null}
         </div>
       </div>
     );
