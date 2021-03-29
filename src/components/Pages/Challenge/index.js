@@ -186,10 +186,10 @@ class Challenge extends Component {
           {(this.state.challengeInfo.start) ? <div>
               <h1>Challenge Schedule</h1>
               <Row>
-                <Col>#</Col>
-                <Col>Begin date</Col>
-                <Col>End date</Col>
-                <Col>Actions</Col>
+                <Col span={1} >#</Col>
+                <Col span={4}>Begin date</Col>
+                <Col span={4}>End date</Col>
+                <Col span={6}>Actions</Col>
               </Row>
 
               {(this.state.challengeInfo.schedule.length) ?
