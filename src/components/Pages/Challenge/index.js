@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 
-import { Form, Input, InputNumber, Button, DatePicker } from 'antd';
+import { Form, Input, InputNumber } from 'antd';
 import { Row, Col } from 'antd';
+import { ButtonStyled } from '../../../styled';
 import ScheduleRow from './Blocks/ScheduleRow';
 import moment from 'moment';
 
@@ -169,7 +170,7 @@ class Challenge extends Component {
         <div>
           Challenge ID
           <InputNumber onChange={this.onChangeChallengeId} />
-          <Button type='primary' onClick={this.onClickChallengeId}>Get</Button>
+          <ButtonStyled type='primary' onClick={this.onClickChallengeId}>Get</ButtonStyled>
         </div>
 
         <div>
