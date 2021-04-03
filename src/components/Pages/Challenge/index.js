@@ -1,8 +1,8 @@
 import React, {Component} from "react";
 
-import { Form, Input, InputNumber } from 'antd';
+import { Form, Input, InputNumber, Space } from 'antd';
 import { Row, Col } from 'antd';
-import { ButtonStyled } from '../../../styled';
+import { ButtonStyled, InputStyled } from '../../../styled';
 import ScheduleRow from './Blocks/ScheduleRow';
 import moment from 'moment';
 
@@ -167,24 +167,29 @@ class Challenge extends Component {
 
     return (
       <div>
-        <div>
-          Challenge ID
-          <InputNumber onChange={this.onChangeChallengeId} />
+        <Space>
+          <label for={"challengeId"}>Challenge ID:</label>
+          <InputNumber id={"challengeId"} onChange={this.onChangeChallengeId} />
           <ButtonStyled type='primary' onClick={this.onClickChallengeId}>Get</ButtonStyled>
+        </Space>
+
+        <div style={{padding: "5px 0px 5px 0px"}}>
+          {(this.state.challengeInfo.start) ?
+            <InputStyled readOnly={true} addonBefore={"Start date"} value={moment.unix(this.state.challengeInfo.start).format("YYYY-MM-DD HH:mm:ss")} /> : null}
+          {(this.state.challengeInfo.myRole) ?
+            <InputStyled readOnly={true} addonBefore={"My role"} value={this.state.challengeInfo.myRole} /> : null}
+          {(this.state.challengeInfo.lastAchieverId) ?
+            <InputStyled readOnly={true} addonBefore={"Participants amount"} value={this.state.challengeInfo.lastAchieverId} /> : null}
+          {(this.state.challengeInfo.lastObserverId) ?
+            <InputStyled readOnly={true} addonBefore={"Observers amount"} value={this.state.challengeInfo.lastObserverId} /> : null}
+          {(this.state.challengeInfo.guarantee) ?
+            <InputStyled readOnly={true} addonBefore={"Guarantee"} value={this.state.challengeInfo.guarantee} /> : null}
+          {(this.state.challengeInfo.fine) ?
+            <InputStyled readOnly={true} addonBefore={"Fine"} value={this.state.challengeInfo.fine} /> : null}
         </div>
 
-        <div>
           {(this.state.challengeInfo.start) ?
-            <div>Start date: {moment.unix(this.state.challengeInfo.start).toString()}</div> : null}
-          {(this.state.challengeInfo.myRole) ? <div>My role: {this.state.challengeInfo.myRole}</div> : null}
-          {(this.state.challengeInfo.lastAchieverId) ?
-            <div>Participants amount: {this.state.challengeInfo.lastAchieverId}</div> : null}
-          {(this.state.challengeInfo.lastObserverId) ?
-            <div>Observers amount: {this.state.challengeInfo.lastObserverId}</div> : null}
-          {(this.state.challengeInfo.guarantee) ? <div>Guarantee: {this.state.challengeInfo.guarantee}</div> : null}
-          {(this.state.challengeInfo.fine) ? <div>Fine: {this.state.challengeInfo.fine}</div> : null}
-
-          {(this.state.challengeInfo.start) ? <div>
+            <div>
               <h1>Challenge Schedule</h1>
               <Row>
                 <Col span={1} >#</Col>
@@ -263,7 +268,6 @@ class Challenge extends Component {
               />
             </div>
             : null}
-        </div>
       </div>
     );
   }
