@@ -13,6 +13,7 @@ class Challenge extends Component {
     this.state = {
       challengeInfo: {
         id: 0,
+        gotten: false,
         guarantee: 0,
         fine: 0,
         start: 0,
@@ -33,6 +34,7 @@ class Challenge extends Component {
   onChangeChallengeId = (value) => {
     let challengeInfo = this.state.challengeInfo;
     challengeInfo.id = value;
+    challengeInfo.gotten = false;
     this.setState({challengeInfo});
   }
 
@@ -102,6 +104,8 @@ class Challenge extends Component {
         result.schedule.push({duration: value, beginDate: '', endDate: '', isNew: false, isEditing: false, isDeleting: false});
       });
     }
+
+    result.gotten = (result.start !== 0);
 
     this.setState({challengeInfo: result});
   }
@@ -174,8 +178,7 @@ class Challenge extends Component {
         </Space>
 
         {/*TODO: Delete Breadcrumb*/}
-        {/*TODO: Add property gotten to challengeInfo*/}
-        {(this.state.challengeInfo.start) ?
+        {(this.state.challengeInfo.gotten) ?
           <div>
             <Descriptions title={'Challenge Info'} style={{padding: '5px 0px 5px 0px'}}>
               <Descriptions.Item
