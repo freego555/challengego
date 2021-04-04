@@ -134,6 +134,7 @@ class App extends Component {
       <Router>
       <Layout style={{ minHeight: '100vh' }}>
 
+        {/*TODO: Hide button text in Sider's onCollapse*/}
         <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse}>
           <div className="logo" />
           <Button type="primary" icon={<ExportOutlined />} onClick={this.state.onClickSignInOut}>{this.state.nameSignInOut}</Button>
@@ -168,11 +169,6 @@ class App extends Component {
             <Switch>
 
               <Route path='/' exact>
-                <Breadcrumb style={{ margin: '16px 0' }}>
-                  <Breadcrumb.Item>Home</Breadcrumb.Item>
-                  <Breadcrumb.Item>Active challenges</Breadcrumb.Item>
-                </Breadcrumb>
-
                 <Home
                   accountAddress={this.state.accountAddress}
                   chainId={this.state.chainId}
@@ -183,10 +179,6 @@ class App extends Component {
               </Route>
 
               <Route path='/challenge' exact>
-                <Breadcrumb style={{ margin: '16px 0' }}>
-                  <Breadcrumb.Item>Challenge</Breadcrumb.Item>
-                </Breadcrumb>
-
                 <Challenge
                   accountAddress={this.state.accountAddress}
                   chainId={this.state.chainId}
@@ -197,10 +189,6 @@ class App extends Component {
               </Route>
 
               <Route path='/create'>
-                <Breadcrumb style={{ margin: '16px 0' }}>
-                  <Breadcrumb.Item>Create</Breadcrumb.Item>
-                </Breadcrumb>
-
                 <CreateChallenge
                   accountAddress={this.state.accountAddress}
                   chainId={this.state.chainId}
@@ -211,30 +199,18 @@ class App extends Component {
               </Route>
 
               <Route path='/connect'>
-                <Breadcrumb style={{ margin: '16px 0' }}>
-                  <Breadcrumb.Item>Connect</Breadcrumb.Item>
-                </Breadcrumb>
-
                 <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
                   Connect to existed Challenge
                 </div>
               </Route>
 
               <Route path='/archive'>
-                <Breadcrumb style={{ margin: '16px 0' }}>
-                  <Breadcrumb.Item>Archive</Breadcrumb.Item>
-                </Breadcrumb>
-
                 <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
                   Archive of finished Challenges
                 </div>
               </Route>
 
               <Route path='/about'>
-                <Breadcrumb style={{ margin: '16px 0' }}>
-                  <Breadcrumb.Item>About</Breadcrumb.Item>
-                </Breadcrumb>
-
                 <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
                   About
                 </div>

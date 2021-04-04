@@ -177,7 +177,6 @@ class Challenge extends Component {
           <ButtonStyled type='primary' onClick={this.onClickChallengeId}>Get</ButtonStyled>
         </Space>
 
-        {/*TODO: Delete Breadcrumb*/}
         {(this.state.challengeInfo.gotten) ?
           <div>
             <Descriptions title={'Challenge Info'} style={{padding: '5px 0px 5px 0px'}}>
