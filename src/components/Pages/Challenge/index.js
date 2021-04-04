@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 
-import { Form, Input, InputNumber, Space } from 'antd';
+import { Form, Input, InputNumber, Space, Descriptions } from 'antd';
 import { Row, Col } from 'antd';
 import { ButtonStyled, InputStyled } from '../../../styled';
 import ScheduleRow from './Blocks/ScheduleRow';
@@ -173,101 +173,100 @@ class Challenge extends Component {
           <ButtonStyled type='primary' onClick={this.onClickChallengeId}>Get</ButtonStyled>
         </Space>
 
-        <div style={{padding: "5px 0px 5px 0px"}}>
-          {(this.state.challengeInfo.start) ?
-            <InputStyled readOnly={true} addonBefore={"Start date"} value={moment.unix(this.state.challengeInfo.start).format("YYYY-MM-DD HH:mm:ss")} /> : null}
-          {(this.state.challengeInfo.myRole) ?
-            <InputStyled readOnly={true} addonBefore={"My role"} value={this.state.challengeInfo.myRole} /> : null}
-          {(this.state.challengeInfo.lastAchieverId) ?
-            <InputStyled readOnly={true} addonBefore={"Participants amount"} value={this.state.challengeInfo.lastAchieverId} /> : null}
-          {(this.state.challengeInfo.lastObserverId) ?
-            <InputStyled readOnly={true} addonBefore={"Observers amount"} value={this.state.challengeInfo.lastObserverId} /> : null}
-          {(this.state.challengeInfo.guarantee) ?
-            <InputStyled readOnly={true} addonBefore={"Guarantee"} value={this.state.challengeInfo.guarantee} /> : null}
-          {(this.state.challengeInfo.fine) ?
-            <InputStyled readOnly={true} addonBefore={"Fine"} value={this.state.challengeInfo.fine} /> : null}
-        </div>
+        {/*TODO: Delete Breadcrumb*/}
+        {/*TODO: Add property gotten to challengeInfo*/}
+        {(this.state.challengeInfo.start) ?
+          <div>
+            <Descriptions title={'Challenge Info'} style={{padding: '5px 0px 5px 0px'}}>
+              <Descriptions.Item
+                label={'Start date'}>{moment.unix(this.state.challengeInfo.start).format('YYYY-MM-DD HH:mm:ss')}</Descriptions.Item>
+              <Descriptions.Item label={'My role'}>{this.state.challengeInfo.myRole}</Descriptions.Item>
+              <Descriptions.Item
+                label={'Participants amount'}>{this.state.challengeInfo.lastAchieverId}</Descriptions.Item>
+              <Descriptions.Item
+                label={'Observers amount'}>{this.state.challengeInfo.lastObserverId}</Descriptions.Item>
+              <Descriptions.Item label={'Guarantee'}>{this.state.challengeInfo.guarantee}</Descriptions.Item>
+              <Descriptions.Item label={'Fine'}>{this.state.challengeInfo.fine}</Descriptions.Item>
+            </Descriptions>
 
-          {(this.state.challengeInfo.start) ?
-            <div>
-              <h1>Challenge Schedule</h1>
-              <Row>
-                <Col span={1} >#</Col>
-                <Col span={4}>Begin date</Col>
-                <Col span={4}>End date</Col>
-                <Col span={6}>Actions</Col>
-              </Row>
+            <h1>Challenge Schedule</h1>
+            <Row>
+              <Col span={1}>#</Col>
+              <Col span={4}>Begin date</Col>
+              <Col span={4}>End date</Col>
+              <Col span={6}>Actions</Col>
+            </Row>
 
-              {(this.state.challengeInfo.schedule.length) ?
-                this.state.challengeInfo.schedule.map((period, index) => {
-                  const beginDate = moment.unix(beginDateUnix);
-                  const endDate = moment.unix(beginDateUnix + period.duration);
-                  beginDateUnix += period.duration;
+            {(this.state.challengeInfo.schedule.length) ?
+              this.state.challengeInfo.schedule.map((period, index) => {
+                const beginDate = moment.unix(beginDateUnix);
+                const endDate = moment.unix(beginDateUnix + period.duration);
+                beginDateUnix += period.duration;
 
-                  return (
-                    <ScheduleRow
-                      key={indexRow}
-                      index={indexRow++}
-                      beginDate={beginDate}
-                      endDate={endDate}
-                      isEditing={period.isEditing}
-                      isDeleting={period.isDeleting}
-                      addButton={{
-                        func: () => {
-                        }, isAvailable: false,
-                      }}
-                      editButton={{
-                        func: this.onEditSchedule,
-                        isAvailable: period.isNew && !this.state.isEditingSchedule,
-                      }}
-                      confirmEditButton={{func: this.onConfirmEditSchedule, isAvailable: period.isEditing}}
-                      discardEditButton={{func: this.onDiscardEditSchedule, isAvailable: period.isEditing}}
-                      confirmDeleteButton={{func: this.onConfirmDeleteSchedule, isAvailable: period.isDeleting}}
-                      discardDeleteButton={{func: this.onDiscardDeleteSchedule, isAvailable: period.isDeleting}}
-                      deleteButton={{
-                        func: this.onDeleteSchedule,
-                        isAvailable: period.isNew && !this.state.isEditingSchedule,
-                      }}
-                    />
-                  );
-                })
-                : null}
+                return (
+                  <ScheduleRow
+                    key={indexRow}
+                    index={indexRow++}
+                    beginDate={beginDate}
+                    endDate={endDate}
+                    isEditing={period.isEditing}
+                    isDeleting={period.isDeleting}
+                    addButton={{
+                      func: () => {
+                      }, isAvailable: false,
+                    }}
+                    editButton={{
+                      func: this.onEditSchedule,
+                      isAvailable: period.isNew && !this.state.isEditingSchedule,
+                    }}
+                    confirmEditButton={{func: this.onConfirmEditSchedule, isAvailable: period.isEditing}}
+                    discardEditButton={{func: this.onDiscardEditSchedule, isAvailable: period.isEditing}}
+                    confirmDeleteButton={{func: this.onConfirmDeleteSchedule, isAvailable: period.isDeleting}}
+                    discardDeleteButton={{func: this.onDiscardDeleteSchedule, isAvailable: period.isDeleting}}
+                    deleteButton={{
+                      func: this.onDeleteSchedule,
+                      isAvailable: period.isNew && !this.state.isEditingSchedule,
+                    }}
+                  />
+                );
+              })
+              : null}
 
-              <ScheduleRow
-                key={indexRow}
-                index={indexRow++}
-                beginDate={moment.unix(beginDateUnix)}
-                endDate={moment.unix(beginDateUnix)}
-                isEditing={false}
-                isDeleting={false}
-                addButton={{func: this.onAddSchedule, isAvailable: true}}
-                editButton={{
-                  func: () => {
-                  }, isAvailable: false,
-                }}
-                confirmEditButton={{
-                  func: () => {
-                  }, isAvailable: false,
-                }}
-                discardEditButton={{
-                  func: () => {
-                  }, isAvailable: false,
-                }}
-                confirmDeleteButton={{
-                  func: () => {
-                  }, isAvailable: false,
-                }}
-                discardDeleteButton={{
-                  func: () => {
-                  }, isAvailable: false,
-                }}
-                deleteButton={{
-                  func: () => {
-                  }, isAvailable: false,
-                }}
-              />
-            </div>
-            : null}
+            <ScheduleRow
+              key={indexRow}
+              index={indexRow++}
+              beginDate={moment.unix(beginDateUnix)}
+              endDate={moment.unix(beginDateUnix)}
+              isEditing={false}
+              isDeleting={false}
+              addButton={{func: this.onAddSchedule, isAvailable: true}}
+              editButton={{
+                func: () => {
+                }, isAvailable: false,
+              }}
+              confirmEditButton={{
+                func: () => {
+                }, isAvailable: false,
+              }}
+              discardEditButton={{
+                func: () => {
+                }, isAvailable: false,
+              }}
+              confirmDeleteButton={{
+                func: () => {
+                }, isAvailable: false,
+              }}
+              discardDeleteButton={{
+                func: () => {
+                }, isAvailable: false,
+              }}
+              deleteButton={{
+                func: () => {
+                }, isAvailable: false,
+              }}
+            />
+          </div>
+          : null}
       </div>
     );
   }
