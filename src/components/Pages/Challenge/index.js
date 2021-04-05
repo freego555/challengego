@@ -1,8 +1,8 @@
 import React, {Component} from "react";
 
-import { Form, Input, InputNumber, Space, Descriptions } from 'antd';
+import { Form, Input, InputNumber, Descriptions } from 'antd';
 import { Row, Col } from 'antd';
-import { ButtonStyled, InputStyled } from '../../../styled';
+import { ButtonStyled, SpaceFlex } from '../../../styled';
 import ScheduleRow from './Blocks/ScheduleRow';
 import moment from 'moment';
 
@@ -171,11 +171,11 @@ class Challenge extends Component {
 
     return (
       <div>
-        <Space>
-          <label for={"challengeId"}>Challenge ID:</label>
+        <SpaceFlex>
+          <label>Challenge ID:</label>
           <InputNumber id={"challengeId"} onChange={this.onChangeChallengeId} />
           <ButtonStyled type='primary' onClick={this.onClickChallengeId}>Get</ButtonStyled>
-        </Space>
+        </SpaceFlex>
 
         {(this.state.challengeInfo.gotten) ?
           <div>
@@ -268,7 +268,7 @@ class Challenge extends Component {
               }}
             />
           </div>
-          : null}
+          : <h1>Choose an existed challenge to see its info.</h1>}
       </div>
     );
   }

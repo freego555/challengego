@@ -165,7 +165,7 @@ class App extends Component {
         <Layout className="site-layout">
           <Header className="site-layout-background" style={{ padding: 0 }} />
 
-          <Content style={{ margin: '0 16px' }}>
+          <Content style={{ margin: '16px' }}>
             <Switch>
 
               <Route path='/' exact>
