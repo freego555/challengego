@@ -1,8 +1,8 @@
 import React, {Component} from "react";
 
 import { Form, Input, InputNumber, Descriptions } from 'antd';
-import { Row, Col } from 'antd';
-import { ButtonStyled, SpaceFlex } from '../../../styled';
+import { Col } from 'antd';
+import { ButtonStyled, SpaceFlex, RowStyled } from '../../../styled';
 import ScheduleRow from './Blocks/ScheduleRow';
 import moment from 'moment';
 
@@ -111,9 +111,12 @@ class Challenge extends Component {
   }
 
   onAddSchedule = (beginDate, endDate) => {
+    const newDuration = endDate.unix() - beginDate.unix();
+    if (newDuration <= 0) return;
+
     let challengeInfo = this.state.challengeInfo;
     challengeInfo.schedule.push({
-      duration: endDate.unix() - beginDate.unix(),
+      duration: newDuration,
       isNew: true,
       isEditing: false,
       isDeleting: false
@@ -130,9 +133,12 @@ class Challenge extends Component {
   }
 
   onConfirmEditSchedule = (beginDate, endDate, index) => {
+    const newDuration = endDate.unix() - beginDate.unix();
+    if (newDuration <= 0) return;
+
     let challengeInfo = this.state.challengeInfo;
     challengeInfo.schedule[index].isEditing = false;
-    challengeInfo.schedule[index].duration = endDate.unix() - beginDate.unix();
+    challengeInfo.schedule[index].duration = newDuration;
 
     this.setState({challengeInfo, isEditingSchedule: false});
   }
@@ -192,12 +198,12 @@ class Challenge extends Component {
             </Descriptions>
 
             <h1>Challenge Schedule</h1>
-            <Row>
+            <RowStyled>
               <Col span={1}>#</Col>
               <Col span={4}>Begin date</Col>
               <Col span={4}>End date</Col>
               <Col span={6}>Actions</Col>
-            </Row>
+            </RowStyled>
 
             {(this.state.challengeInfo.schedule.length) ?
               this.state.challengeInfo.schedule.map((period, index) => {
@@ -234,41 +240,45 @@ class Challenge extends Component {
               })
               : null}
 
-            <ScheduleRow
-              key={indexRow}
-              index={indexRow++}
-              beginDate={moment.unix(beginDateUnix)}
-              endDate={moment.unix(beginDateUnix)}
-              isEditing={false}
-              isDeleting={false}
-              addButton={{func: this.onAddSchedule, isAvailable: true}}
-              editButton={{
-                func: () => {
-                }, isAvailable: false,
-              }}
-              confirmEditButton={{
-                func: () => {
-                }, isAvailable: false,
-              }}
-              discardEditButton={{
-                func: () => {
-                }, isAvailable: false,
-              }}
-              confirmDeleteButton={{
-                func: () => {
-                }, isAvailable: false,
-              }}
-              discardDeleteButton={{
-                func: () => {
-                }, isAvailable: false,
-              }}
-              deleteButton={{
-                func: () => {
-                }, isAvailable: false,
-              }}
-            />
+            {!this.state.isEditingSchedule ?
+              <ScheduleRow
+                key={indexRow}
+                index={indexRow++}
+                beginDate={moment.unix(beginDateUnix)}
+                endDate={moment.unix(beginDateUnix)}
+                isEditing={false}
+                isDeleting={false}
+                addButton={{func: this.onAddSchedule, isAvailable: true}}
+                editButton={{
+                  func: () => {
+                  }, isAvailable: false,
+                }}
+                confirmEditButton={{
+                  func: () => {
+                  }, isAvailable: false,
+                }}
+                discardEditButton={{
+                  func: () => {
+                  }, isAvailable: false,
+                }}
+                confirmDeleteButton={{
+                  func: () => {
+                  }, isAvailable: false,
+                }}
+                discardDeleteButton={{
+                  func: () => {
+                  }, isAvailable: false,
+                }}
+                deleteButton={{
+                  func: () => {
+                  }, isAvailable: false,
+                }}
+              />
+              : null
+            }
           </div>
-          : <h1>Choose an existed challenge to see its info.</h1>}
+          : <h1>Choose an existed challenge to see its info.</h1>
+        }
       </div>
     );
   }

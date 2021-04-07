@@ -1,6 +1,10 @@
 import styled from 'styled-components';
 
-import { Button, Input, Space } from 'antd';
+import { Button, Input, Space, Row } from 'antd';
+
+export const RowStyled = styled(Row)`
+  margin: 5px 0px;
+`
 
 export const ButtonStyled = styled(Button)`
   margin: 0px 3px;

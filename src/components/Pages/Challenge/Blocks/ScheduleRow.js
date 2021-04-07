@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { DatePicker } from 'antd';
 import { Row, Col } from 'antd';
-import { ButtonStyled } from '../../../../styled';
+import { ButtonStyled, RowStyled } from '../../../../styled';
 
 class ScheduleRow extends Component {
   constructor (props) {
@@ -14,7 +14,7 @@ class ScheduleRow extends Component {
 
   render() {
     return (
-      <Row>
+      <RowStyled>
         <Col span={1}>{this.props.index + 1}</Col>
 
         <Col span={4}>{this.props.beginDate.format("YYYY-MM-DD HH:mm:ss")}</Col>
@@ -25,14 +25,14 @@ class ScheduleRow extends Component {
               showTime
               allowClear={false}
               format="YYYY-MM-DD HH:mm:ss"
-              defaultValue={this.state.endDate}
+              defaultValue={this.props.endDate}
               onChange={(dateMoment) => {
                 if (dateMoment.isAfter(this.props.beginDate)) {
                   this.setState({endDate: dateMoment});
                 }
               }}
             />
-            : this.state.endDate.format("YYYY-MM-DD HH:mm:ss")
+            : this.props.endDate.format("YYYY-MM-DD HH:mm:ss")
           }
         </Col>
 
@@ -41,17 +41,17 @@ class ScheduleRow extends Component {
             <Col>
               {this.props.addButton.isAvailable && <ButtonStyled type='primary' onClick={(e) => this.props.addButton.func(this.props.beginDate, this.state.endDate)}>Add new period</ButtonStyled>}
 
-              {this.props.editButton.isAvailable && <ButtonStyled type='default' onClick={(e) => this.props.editButton.func(e, this.props.index)}>Edit</ButtonStyled>}
+              {!this.props.isDeleting && !this.props.addButton.isAvailable && <ButtonStyled type='default' disabled={!this.props.editButton.isAvailable} onClick={(e) => this.props.editButton.func(e, this.props.index)}>Edit</ButtonStyled>}
               {this.props.isEditing && <ButtonStyled type='primary' onClick={(e) => this.props.confirmEditButton.func(this.props.beginDate, this.state.endDate, this.props.index)}>Confirm</ButtonStyled>}
               {this.props.isEditing && <ButtonStyled type='primary' onClick={(e) => this.props.discardEditButton.func(e, this.props.index)}>Discard</ButtonStyled>}
 
-              {this.props.deleteButton.isAvailable && <ButtonStyled type='default' onClick={(e) => this.props.deleteButton.func(e, this.props.index)}>Delete</ButtonStyled>}
+              {!this.props.isEditing && !this.props.addButton.isAvailable && <ButtonStyled type='default' disabled={!this.props.deleteButton.isAvailable} onClick={(e) => this.props.deleteButton.func(e, this.props.index)}>Delete</ButtonStyled>}
               {this.props.isDeleting && <ButtonStyled type='primary' onClick={(e) => this.props.confirmDeleteButton.func(e, this.props.index)}>Confirm</ButtonStyled>}
               {this.props.isDeleting && <ButtonStyled type='primary' onClick={(e) => this.props.discardDeleteButton.func(e, this.props.index)}>Discard</ButtonStyled>}
             </Col>
           </Row>
         </Col>
-      </Row>
+      </RowStyled>
     );
   }
 }
