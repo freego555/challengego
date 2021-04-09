@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 
-import { Form, Input, InputNumber, Descriptions } from 'antd';
+import { Form, Input, InputNumber, Descriptions, Space } from 'antd';
 import { Col } from 'antd';
 import { ButtonStyled, SpaceFlex, RowStyled } from '../../../styled';
 import ScheduleRow from './Blocks/ScheduleRow';
@@ -101,7 +101,7 @@ class Challenge extends Component {
       await challenge.methods.schedule(id, i).call().then((value) => {
         console.log(i, "schedule value", value);
         result.finish += +value;
-        result.schedule.push({duration: value, beginDate: '', endDate: '', isNew: false, isEditing: false, isDeleting: false});
+        result.schedule.push({duration: value, beginDate: '', endDate: '', status: 'saved', txHash: '', isEditing: false, isDeleting: false});
       });
     }
 
@@ -117,7 +117,7 @@ class Challenge extends Component {
     let challengeInfo = this.state.challengeInfo;
     challengeInfo.schedule.push({
       duration: newDuration,
-      isNew: true,
+      status: 'new',
       isEditing: false,
       isDeleting: false
     });
@@ -171,6 +171,37 @@ class Challenge extends Component {
     this.setState({challengeInfo, isEditingSchedule: false});
   }
 
+  onClickAddToSchedule = async (e) => {
+    let challengeInfo = this.state.challengeInfo;
+    const { challenge, accountAddress } = this.props;
+
+    let schedule = [];
+    for (let i = 0; i < challengeInfo.schedule.length; i++) {
+      if (challengeInfo.schedule[i].status === 'new') {
+        schedule.push(challengeInfo.schedule[i].duration);
+        challengeInfo.schedule[i].status = 'sent';
+        if (schedule.length === 10) {
+          break;
+        }
+      }
+    }
+
+    await challenge.methods.addToSchedule(challengeInfo.id, schedule).send({from: accountAddress}).then(() => {
+      let challengeInfo = this.state.challengeInfo;
+
+      for (let i = 0; i < challengeInfo.schedule.length; i++) {
+        if (challengeInfo.schedule[i].status !== 'saved') {
+          challengeInfo.schedule[i].status = 'saved';
+        }
+      }
+
+      console.log('Challenge Schedule is updated!');
+      this.setState({challengeInfo});
+    });
+
+    this.state.setState({challengeInfo});
+  }
+
   render() {
     let beginDateUnix = this.state.challengeInfo.start;
     let indexRow = 0;
@@ -197,7 +228,10 @@ class Challenge extends Component {
               <Descriptions.Item label={'Fine'}>{this.state.challengeInfo.fine}</Descriptions.Item>
             </Descriptions>
 
-            <h1>Challenge Schedule</h1>
+            <Space>
+              <h1>Challenge Schedule</h1>
+              <ButtonStyled type='primary' onClick={this.onClickAddToSchedule}>Send schedule changes to blockchain</ButtonStyled>
+            </Space>
             <RowStyled>
               <Col span={1}>#</Col>
               <Col span={4}>Begin date</Col>
@@ -225,7 +259,7 @@ class Challenge extends Component {
                     }}
                     editButton={{
                       func: this.onEditSchedule,
-                      isAvailable: period.isNew && !this.state.isEditingSchedule,
+                      isAvailable: period.status === 'new' && !this.state.isEditingSchedule,
                     }}
                     confirmEditButton={{func: this.onConfirmEditSchedule, isAvailable: period.isEditing}}
                     discardEditButton={{func: this.onDiscardEditSchedule, isAvailable: period.isEditing}}
@@ -233,7 +267,7 @@ class Challenge extends Component {
                     discardDeleteButton={{func: this.onDiscardDeleteSchedule, isAvailable: period.isDeleting}}
                     deleteButton={{
                       func: this.onDeleteSchedule,
-                      isAvailable: period.isNew && !this.state.isEditingSchedule,
+                      isAvailable: period.status === 'new' && !this.state.isEditingSchedule,
                     }}
                   />
                 );
