@@ -97,11 +97,12 @@ class Challenge extends Component {
     });
 
     result.finish = result.start;
+    result.schedule = [];
     for (let i = 1; i <= result.lastSchedulePeriodId; i++) {
       await challenge.methods.schedule(id, i).call().then((value) => {
         console.log(i, "schedule value", value);
         result.finish += +value;
-        result.schedule.push({duration: value, beginDate: '', endDate: '', status: 'saved', txHash: '', isEditing: false, isDeleting: false});
+        result.schedule.push({duration: +value, beginDate: '', endDate: '', status: 'saved', txHash: '', isEditing: false, isDeleting: false});
       });
     }
 
@@ -186,6 +187,11 @@ class Challenge extends Component {
       }
     }
 
+    // Filling schedule to make it an array with length 10
+    for (let i = schedule.length; i < 10; i++) {
+      schedule.push(0);
+    }
+
     await challenge.methods.addToSchedule(challengeInfo.id, schedule).send({from: accountAddress}).then(() => {
       let challengeInfo = this.state.challengeInfo;
 
@@ -199,7 +205,7 @@ class Challenge extends Component {
       this.setState({challengeInfo});
     });
 
-    this.state.setState({challengeInfo});
+    this.setState({challengeInfo});
   }
 
   render() {
