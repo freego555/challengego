@@ -27,17 +27,17 @@ class Home extends Component {
 
       await challenge.methods.guarantee(id).call().then((value) => {
         console.log("guarantee", value);
-        challengeObject.guarantee = value;
+        challengeObject.guarantee = +value;
       });
 
       await challenge.methods.fine(id).call().then((value) => {
         console.log("fine", value);
-        challengeObject.fine = value;
+        challengeObject.fine = +value;
       });
 
       await challenge.methods.start(id).call().then((value) => {
         console.log("start", value);
-        challengeObject.start = value;
+        challengeObject.start = +value;
       });
 
       await challenge.methods.ownerOfChallenge(id).call().then((value) => {
@@ -48,36 +48,36 @@ class Home extends Component {
 
       await challenge.methods.isAchiever(id, this.props.accountAddress).call().then((value) => {
         console.log("isAchiever", value);
-        challengeObject.isAchiever = value;
+        challengeObject.isAchiever = Boolean(value);
         challengeObject.myRole = (value) ? 'achiever' : challengeObject.myRole;
       });
 
       await challenge.methods.isObserver(id, this.props.accountAddress).call().then((value) => {
         console.log("isObserver", value);
-        challengeObject.isObserver = value;
+        challengeObject.isObserver = Boolean(value);
         challengeObject.myRole = (value) ? 'observer' : challengeObject.myRole;
       });
 
       await challenge.methods.lastAchieverId(id).call().then((value) => {
         console.log("lastAchieverId", value);
-        challengeObject.lastAchieverId = value;
+        challengeObject.lastAchieverId = +value;
       });
 
       await challenge.methods.lastObserverId(id).call().then((value) => {
         console.log("lastObserverId", value);
-        challengeObject.lastObserverId = value;
+        challengeObject.lastObserverId = +value;
       });
 
       await challenge.methods.lastSchedulePeriodId(id).call().then((value) => {
         console.log("lastSchedulePeriodId", value);
-        challengeObject.lastSchedulePeriodId = value;
+        challengeObject.lastSchedulePeriodId = +value;
       });
 
       challengeObject.finish = challengeObject.start;
       for (let i = 1; i <= challengeObject.lastSchedulePeriodId; i++) {
         await challenge.methods.schedule(id, i).call().then((value) => {
           console.log(i, "schedule value", value);
-          challengeObject.finish += value;
+          challengeObject.finish += +value;
         });
       }
 

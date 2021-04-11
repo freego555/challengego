@@ -180,7 +180,6 @@ class Challenge extends Component {
     for (let i = 0; i < challengeInfo.schedule.length; i++) {
       if (challengeInfo.schedule[i].status === 'new') {
         schedule.push(challengeInfo.schedule[i].duration);
-        challengeInfo.schedule[i].status = 'sent';
         if (schedule.length === 10) {
           break;
         }
@@ -204,8 +203,6 @@ class Challenge extends Component {
       console.log('Challenge Schedule is updated!');
       this.setState({challengeInfo});
     });
-
-    this.setState({challengeInfo});
   }
 
   render() {
