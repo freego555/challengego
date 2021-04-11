@@ -2,7 +2,7 @@ import React, {Component} from "react";
 
 import { Form, Input, InputNumber, Descriptions, Space } from 'antd';
 import { Col } from 'antd';
-import { ButtonStyled, SpaceFlex, RowStyled } from '../../../styled';
+import {ButtonStyled, SpaceFlex, RowHeader, Header1Bold} from '../../../styled';
 import ScheduleRow from './Blocks/ScheduleRow';
 import moment from 'moment';
 
@@ -235,15 +235,16 @@ class Challenge extends Component {
             </Descriptions>
 
             <Space>
-              <h1>Challenge Schedule</h1>
+              <Header1Bold>Challenge Schedule</Header1Bold>
               <ButtonStyled type='primary' onClick={this.onClickAddToSchedule}>Send schedule changes to blockchain</ButtonStyled>
             </Space>
-            <RowStyled>
+            <RowHeader>
               <Col span={1}>#</Col>
+              <Col span={1}>status</Col>
               <Col span={4}>Begin date</Col>
               <Col span={4}>End date</Col>
               <Col span={6}>Actions</Col>
-            </RowStyled>
+            </RowHeader>
 
             {(this.state.challengeInfo.schedule.length) ?
               this.state.challengeInfo.schedule.map((period, index) => {
@@ -255,6 +256,7 @@ class Challenge extends Component {
                   <ScheduleRow
                     key={indexRow}
                     index={indexRow++}
+                    status={period.status}
                     beginDate={beginDate}
                     endDate={endDate}
                     isEditing={period.isEditing}
@@ -284,6 +286,7 @@ class Challenge extends Component {
               <ScheduleRow
                 key={indexRow}
                 index={indexRow++}
+                status=''
                 beginDate={moment.unix(beginDateUnix)}
                 endDate={moment.unix(beginDateUnix)}
                 isEditing={false}

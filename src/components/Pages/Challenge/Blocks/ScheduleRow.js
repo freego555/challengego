@@ -17,6 +17,8 @@ class ScheduleRow extends Component {
       <RowStyled>
         <Col span={1}>{this.props.index + 1}</Col>
 
+        <Col span={1}>{this.props.status}</Col>
+
         <Col span={4}>{this.props.beginDate.format("YYYY-MM-DD HH:mm:ss")}</Col>
 
         <Col span={4}>
