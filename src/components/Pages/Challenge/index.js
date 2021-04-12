@@ -21,7 +21,7 @@ class Challenge extends Component {
         ownerOfChallenge: '',
         isAchiever: false,
         isObserver: false,
-        myRole: '',
+        myRoles: [],
         lastAchieverId: 0,
         lastObserverId: 0,
         lastSchedulePeriodId: 0,
@@ -43,7 +43,7 @@ class Challenge extends Component {
   }
 
   getChallengeInfo = async () => {
-    const {challenge} = this.props;
+    const {challenge, accountAddress} = this.props;
     let result = this.state.challengeInfo;
     const id = result.id;
 
@@ -62,24 +62,33 @@ class Challenge extends Component {
       result.start = +value;
     });
 
-    result.myRole = '';
+    result.myRoles = [];
     await challenge.methods.ownerOfChallenge(id).call().then((value) => {
-      console.log("ownerOfChallenge", value);
-      result.ownerOfChallenge = value;
-      result.myRole = (value) ? 'owner' : result.myRole;
+      result.ownerOfChallenge = String(value).toLowerCase();
+      console.log("ownerOfChallenge", result.ownerOfChallenge);
+
+      if (accountAddress === result.ownerOfChallenge)
+        result.myRoles.push('owner');
     });
 
-    await challenge.methods.isAchiever(id, this.props.accountAddress).call().then((value) => {
+    await challenge.methods.isAchiever(id, accountAddress).call().then((value) => {
       console.log("isAchiever", value);
       result.isAchiever = Boolean(value);
-      result.myRole = (value) ? 'achiever' : result.myRole;
+
+      if (result.isAchiever)
+        result.myRoles.push('achiever');
     });
 
-    await challenge.methods.isObserver(id, this.props.accountAddress).call().then((value) => {
+    await challenge.methods.isObserver(id, accountAddress).call().then((value) => {
       console.log("isObserver", value);
       result.isObserver = Boolean(value);
-      result.myRole = (value) ? 'observer' : result.myRole;
+
+      if (result.isObserver)
+        result.myRoles.push('observer');
     });
+
+    console.log('accountAddress =', accountAddress);
+    console.log('this.state.challengeInfo.myRoles =', this.state.challengeInfo.myRoles);
 
     await challenge.methods.lastAchieverId(id).call().then((value) => {
       console.log("lastAchieverId", value);
@@ -222,7 +231,7 @@ class Challenge extends Component {
             <Descriptions title={'Challenge Info'} style={{padding: '5px 0px 5px 0px'}}>
               <Descriptions.Item
                 label={'Start date'}>{moment.unix(this.state.challengeInfo.start).format('YYYY-MM-DD HH:mm:ss')}</Descriptions.Item>
-              <Descriptions.Item label={'My role'}>{this.state.challengeInfo.myRole}</Descriptions.Item>
+              <Descriptions.Item label={'My roles'}>{this.state.challengeInfo.myRoles.join(', ')}</Descriptions.Item>
               <Descriptions.Item
                 label={'Participants amount'}>{this.state.challengeInfo.lastAchieverId}</Descriptions.Item>
               <Descriptions.Item
