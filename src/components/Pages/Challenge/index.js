@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 
-import { Form, Input, InputNumber, Descriptions, Space } from 'antd';
+import { Form, Input, InputNumber, Descriptions, Space, Divider } from 'antd';
 import { Col } from 'antd';
 import {ButtonStyled, SpaceFlex, RowHeader, Header1Bold} from '../../../styled';
 import ScheduleRow from './Blocks/ScheduleRow';
@@ -30,6 +30,8 @@ class Challenge extends Component {
       isEditingSchedule: false,
     };
   }
+
+  emptyFunc = () => {}
 
   onChangeChallengeId = (value) => {
     let challengeInfo = this.state.challengeInfo;
@@ -228,7 +230,8 @@ class Challenge extends Component {
 
         {(this.state.challengeInfo.gotten) ?
           <div>
-            <Descriptions title={'Challenge Info'} style={{padding: '5px 0px 5px 0px'}}>
+            <Divider orientation="left">Challenge Info</Divider>
+            <Descriptions style={{padding: '5px 0px 5px 0px'}}>
               <Descriptions.Item
                 label={'Start date'}>{moment.unix(this.state.challengeInfo.start).format('YYYY-MM-DD HH:mm:ss')}</Descriptions.Item>
               <Descriptions.Item label={'My roles'}>{this.state.challengeInfo.myRoles.join(', ')}</Descriptions.Item>
@@ -240,10 +243,14 @@ class Challenge extends Component {
               <Descriptions.Item label={'Fine'}>{this.state.challengeInfo.fine}</Descriptions.Item>
             </Descriptions>
 
+            <Divider orientation="left">Actions for new users</Divider>
             <Space>
-              <Header1Bold>Challenge Schedule</Header1Bold>
-              <ButtonStyled type='primary' onClick={this.onClickAddToSchedule}>Send schedule changes to blockchain</ButtonStyled>
+              <ButtonStyled type='primary' onClick={this.emptyFunc}>Become achiever</ButtonStyled>
+              <ButtonStyled type='primary' onClick={this.emptyFunc}>Become observer</ButtonStyled>
             </Space>
+
+            <Divider orientation="left">Challenge Schedule</Divider>
+            <ButtonStyled type='primary' onClick={this.onClickAddToSchedule}>Send schedule changes to blockchain</ButtonStyled>
             <RowHeader>
               <Col span={1}>#</Col>
               <Col span={1}>status</Col>
@@ -298,30 +305,12 @@ class Challenge extends Component {
                 isEditing={false}
                 isDeleting={false}
                 addButton={{func: this.onAddSchedule, isAvailable: true}}
-                editButton={{
-                  func: () => {
-                  }, isAvailable: false,
-                }}
-                confirmEditButton={{
-                  func: () => {
-                  }, isAvailable: false,
-                }}
-                discardEditButton={{
-                  func: () => {
-                  }, isAvailable: false,
-                }}
-                confirmDeleteButton={{
-                  func: () => {
-                  }, isAvailable: false,
-                }}
-                discardDeleteButton={{
-                  func: () => {
-                  }, isAvailable: false,
-                }}
-                deleteButton={{
-                  func: () => {
-                  }, isAvailable: false,
-                }}
+                editButton={{func: this.emptyFunc, isAvailable: false}}
+                confirmEditButton={{func: this.emptyFunc, isAvailable: false}}
+                discardEditButton={{func: this.emptyFunc, isAvailable: false}}
+                confirmDeleteButton={{func: this.emptyFunc, isAvailable: false}}
+                discardDeleteButton={{func: this.emptyFunc, isAvailable: false}}
+                deleteButton={{func: this.emptyFunc, isAvailable: false}}
               />
               : null
             }
