@@ -122,6 +122,24 @@ class Challenge extends Component {
     this.setState({challengeInfo: result});
   }
 
+  becomeObserver = (challengeId) => {
+    const {challenge, accountAddress} = this.props;
+    let {challengeInfo} = this.state;
+    return challenge.methods.becomeObserver(challengeId).send({from: accountAddress}).then(() => {
+      challengeInfo.isObserver = true;
+      if (!challengeInfo.myRoles.includes("observer")) {
+        challengeInfo.myRoles.push("observer");
+      }
+
+      console.log("You've become observer");
+      this.setState({challengeInfo});
+    });
+  }
+
+  onClickBecomeObserver = async () => {
+    await this.becomeObserver(this.state.challengeInfo.id);
+  }
+
   onAddSchedule = (beginDate, endDate) => {
     const newDuration = endDate.unix() - beginDate.unix();
     if (newDuration <= 0) return;
@@ -217,7 +235,8 @@ class Challenge extends Component {
   }
 
   render() {
-    let beginDateUnix = this.state.challengeInfo.start;
+    const { challengeInfo } = this.state;
+    let beginDateUnix = challengeInfo.start;
     let indexRow = 0;
 
     return (
@@ -245,8 +264,8 @@ class Challenge extends Component {
 
             <Divider orientation="left">Actions for new users</Divider>
             <Space>
-              <ButtonStyled type='primary' onClick={this.emptyFunc}>Become achiever</ButtonStyled>
-              <ButtonStyled type='primary' onClick={this.emptyFunc}>Become observer</ButtonStyled>
+              <ButtonStyled type='primary' disabled={challengeInfo.isAchiever || challengeInfo.isObserver} onClick={this.emptyFunc}>Become achiever</ButtonStyled>
+              <ButtonStyled type='primary' disabled={challengeInfo.isAchiever || challengeInfo.isObserver} onClick={this.onClickBecomeObserver}>Become observer</ButtonStyled>
             </Space>
 
             <Divider orientation="left">Challenge Schedule</Divider>
