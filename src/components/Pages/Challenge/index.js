@@ -122,6 +122,24 @@ class Challenge extends Component {
     this.setState({challengeInfo: result});
   }
 
+  becomeAchiever = (challengeId) => {
+    const {wallet, accountAddress} = this.props;
+    let {challengeInfo} = this.state;
+    return wallet.methods.becomeAchiever(challengeId).send({from: accountAddress, value: challengeInfo.guarantee}).then(() => {
+      challengeInfo.isAchiever = true;
+      if (!challengeInfo.myRoles.includes("achiever")) {
+        challengeInfo.myRoles.push("achiever");
+      }
+
+      console.log("You've become achiever");
+      this.setState({challengeInfo});
+    });
+  }
+
+  onClickBecomeAchiever = async () => {
+    await this.becomeAchiever(this.state.challengeInfo.id);
+  }
+
   becomeObserver = (challengeId) => {
     const {challenge, accountAddress} = this.props;
     let {challengeInfo} = this.state;
@@ -264,7 +282,7 @@ class Challenge extends Component {
 
             <Divider orientation="left">Actions for new users</Divider>
             <Space>
-              <ButtonStyled type='primary' disabled={challengeInfo.isAchiever || challengeInfo.isObserver} onClick={this.emptyFunc}>Become achiever</ButtonStyled>
+              <ButtonStyled type='primary' disabled={challengeInfo.isAchiever || challengeInfo.isObserver} onClick={this.onClickBecomeAchiever}>Become achiever</ButtonStyled>
               <ButtonStyled type='primary' disabled={challengeInfo.isAchiever || challengeInfo.isObserver} onClick={this.onClickBecomeObserver}>Become observer</ButtonStyled>
             </Space>
 
